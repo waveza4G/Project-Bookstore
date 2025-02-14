@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticatable;  // เพิ่มบรรทัดนี้เพื่อให้ `Customer` เป็น Authenticatable
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
-class Customer extends Model
+class Customer extends Authenticatable 
 {
     use HasFactory, HasApiTokens;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
-    protected $fillable = ['customer_name', 'customer_code', 'age', 'address', 'phone', 'email', 'password', 'status', 'penalty'];
+    protected $fillable = ['name', 'lastname', 'username', 'phone', 'email', 'password', 'status', 'penalty', 'book_count'];
 
     // ความสัมพันธ์: ลูกค้าสามารถยืมหนังสือหลายเล่ม
     public function rentals()

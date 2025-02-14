@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
@@ -26,10 +30,12 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+
+     public function store(Request $request)
     {
-        //
+
     }
+    
 
     /**
      * Display the specified resource.

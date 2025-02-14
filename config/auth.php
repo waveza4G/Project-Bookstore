@@ -38,15 +38,17 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
+        'customer' => [
+            'driver' => 'session', //แยกสิทธ์โดย cookie และ session ตรวจสอบว่า driver ถูกต้อง 
+            'provider' => 'customers', //เรียกใช้ตาราง customers ในการตรวจสอบ
         ],
+
         'admin' => [
             'driver' => 'session',
-            'provider' => 'admins',
-            ],
+            'provider' => 'admins', 
+        ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -66,14 +68,16 @@ return [
     */
 
     'providers' => [
-        'users' => [
-        'driver' => 'eloquent',
-        'model' => App\Models\Customer::class, // สำหรับ Customer
+        'customers' => [
+        'driver' => 'eloquent', // ใช้ Eloquent ในการเชื่อมต่อฐานข้อมูล
+        'model' => App\Models\Customer::class, // เรียกใช้ฐานข้อมูลผ่าน model Customer
             ],
+
         'admins' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Admin::class, // ใช้ Model Admin ของคุณ
-        ],
+        'driver' => 'eloquent',
+        'model' => App\Models\Admin::class,
+            ],
+
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

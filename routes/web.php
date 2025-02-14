@@ -4,29 +4,44 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use Inertia\Inertia;
+use App\Http\Controllers\CustomerController;
+
 // หน้า Login
 
+Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/login', function () {
-    return view('auth.login');  // หน้าฟอร์ม login ที่คุณสร้างไว้
+    return Inertia::render('Bookstore/Login');  // ใช้ Inertia แทน render
 })->name('login');
 
+
+
+Route::post('/register', [AuthController::class, 'register']);  // แก้ไขให้ใช้ store แทน register
+
+Route::get('/register', function () {
+    return Inertia::render('Bookstore/Register');  // ใช้ Inertia แทน render
+})->name('register');
+
+
+
 // ฟอร์ม Login
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+Route::middleware('auth:admin')->get('/admin/dashboard', function () {
+    return Inertia::render('admin/dashboard');  // ใช้ Inertia แทน render
+})->name('admin.dashboard');
+
+// สำหรับการลงทะเบียน Admin
+Route::post('/admin/register', [AdminController::class, 'addadmin']);  // แก้ไขให้ใช้ store แทน register
 
 // ฟังก์ชัน logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
-Route::post('/admin/register', [AdminController::class, 'register']);
 
-// สำหรับ Admin Dashboard
-Route::middleware('auth:admin')->get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
 
 // สำหรับ Customer Dashboard
-Route::middleware('auth:web')->get('/customer/dashboard', function () {
-    return view('customer.dashboard');
+Route::middleware('auth:customer')->get('/customer/dashboard', function () {
+    return Inertia::render('customer/dashboard');  // ใช้ Inertia แทน render
 })->name('customer.dashboard');
 
-Route::get('/', function () {return Inertia::render('Bookstore/Index');});
+// หน้า Home หรือ Bookstore
+Route::get('/', function () {
+    return Inertia::render('Bookstore/Dashboard');});
+

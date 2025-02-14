@@ -17,13 +17,13 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'customer_name' => $this->faker->name(),
-            'customer_code' => $this->faker->unique()->randomNumber(5),
-            'age' => $this->faker->numberBetween(18, 70),
-            'address' => $this->faker->address(),
+            'name' => $this->faker->firstName(),
+            'lastname' => $this->faker->lastName(),
+            'username' => $this->faker->unique()->name(),
             'phone' => $this->faker->unique()->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => bcrypt('password'), // สุ่มรหัสผ่านและเข้ารหัส
+            'book_count' => $this->faker->numberBetween(0, 10),
             'status' => $this->faker->randomElement(['borrowed', 'returned']),
             'penalty' => $this->faker->randomFloat(2, 0, 100), // ถูกต้อง
         ];

@@ -2,17 +2,19 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use Inertia\Inertia;
 // เส้นทางสำหรับการเข้าสู่ระบบ
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [ApiController::class, 'login'])->name('login');
 
 // เส้นทางสำหรับการล็อกเอาต์
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
+Route::post('/logout', [Controller::class, 'logout'])->middleware('auth:sanctum')->name('logout');
 
+Route::post('/register', [AuthController::class, 'addadmin']);  // แก้ไขให้ใช้ store แทน register
 
-Route::post('/admin/register', [AdminController::class, 'register']);
+Route::post('/admin/register', [ApiController::class, 'addadmin']);
 
 // เส้นทางที่ต้องการการยืนยันตัวตน
 Route::get('/user', function (Request $request) {
@@ -21,10 +23,10 @@ Route::get('/user', function (Request $request) {
 
 // เส้นทางสำหรับ Admin Dashboard
 Route::middleware('auth:admin')->group(function () {
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [Controller::class, 'dashboard'])->name('admin.dashboard');
 });
 
 // เส้นทางสำหรับ Customer Dashboard
 Route::middleware('auth:web')->group(function () {
-    Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])->name('customer.dashboard');
+    Route::get('/customer/dashboard', [Controller::class, 'dashboard'])->name('customer.dashboard');
 });

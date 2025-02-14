@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('role')->default('admin'); // กำหนดค่าเริ่มต้นเป็น 'admin' หรือสามารถใช้ enum สำหรับ role
             $table->timestamps();
         });
     }

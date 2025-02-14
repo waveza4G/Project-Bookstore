@@ -22,6 +22,7 @@ class BookFactory extends Factory
             'typebook_id' => Typebook::factory(), // ใช้ factory ของ Category แทน
             'quantity' => $this->faker->numberBetween(1, 100),
             'remaining_quantity' => $this->faker->numberBetween(1, 100),
+            'sold_quantity' => $this->faker->numberBetween(1, 100),
             'price' => $this->faker->randomFloat(2, 100, 500),
         ];
 

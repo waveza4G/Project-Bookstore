@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_name');
-            $table->string('customer_code');
-            $table->integer('age');
-            $table->text('address');
+            $table->string('name');
+            $table->string('lastname');
+            $table->string('username')->unique();  // ห้ามชื่อผู้ใช้ซ้ำ
             $table->string('phone')->unique();  // ห้ามเบอร์โทรศัพท์ซ้ำ
             $table->string('email')->unique();  // ห้ามอีเมลซ้ำ
             $table->string('password');
-            $table->enum('status', ['borrowed', 'returned'])->default('borrowed');  // สถานะการยืม (กำลังยืม หรือ คืนแล้ว)
+            $table->integer('book_count')->default(0);  // จำนวนหนังสือที่ยืม (เริ่มต้นเป็น 0)
+            $table->enum('status', ['borrowed', 'returned'])->default('null');  // สถานะการยืม (กำลังยืม หรือ คืนแล้ว)
             $table->decimal('penalty', 8, 2)->default(0);  // ค่าปรับ (เริ่มต้นเป็น 0 หากยังไม่ได้ค่าปรับ)
             $table->timestamps();
         });

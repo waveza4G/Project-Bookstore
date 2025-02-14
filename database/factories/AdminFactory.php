@@ -20,7 +20,6 @@ class AdminFactory extends Factory
             'name' => $this->faker->userName(),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => bcrypt('password'),
-
         ];
     }
 }

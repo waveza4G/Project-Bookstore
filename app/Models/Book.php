@@ -10,7 +10,7 @@ class Book extends Model
     use HasFactory;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
-    protected $fillable = ['book_name', 'typebook_id', 'quantity', 'remaining_quantity', 'price', 'image'];
+    protected $fillable = ['book_name', 'typebook_id', 'quantity', 'remaining_quantity', 'price', 'image','sold_quantity'];
 
     // ความสัมพันธ์: หนังสือหนึ่งเล่มจะเชื่อมโยงกับหมวดหมู่เดียว
     public function typebook()

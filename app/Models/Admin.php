@@ -10,17 +10,15 @@ class Admin extends Authenticatable  // เปลี่ยนจาก Model เ
 {
     use HasFactory, HasApiTokens;
 
-    protected $fillable = ['name', 'email', 'password', 'role'];
+    protected $fillable = ['name', 'email', 'password'];
 
     // ฟังก์ชันที่ใช้ตรวจสอบว่าเป็น admin หรือไม่
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
-    }
 
     // ใช้ `getAuthIdentifierName()` จาก `Authenticatable`
     public function getAuthIdentifierName()
     {
         return 'email';  // ใช้ email เป็นตัวระบุ
     }
+    protected $hidden = ['password'];  // ซ่อนข้อมูล password
+
 }
