@@ -8,9 +8,11 @@ use App\Http\Controllers\AdminController;
 use Inertia\Inertia;
 // เส้นทางสำหรับการเข้าสู่ระบบ
 Route::post('/login', [ApiController::class, 'login'])->name('login');
+Route::post('/admin/login', [ApiController::class, 'login'])->name('admin.login');
 
 // เส้นทางสำหรับการล็อกเอาต์
-Route::post('/logout', [Controller::class, 'logout'])->middleware('auth:sanctum')->name('logout');
+Route::post('/logout', [ApiController::class, 'logout'])->name('logout');
+Route::post('/admin/logout', [ApiController::class, 'logout'])->name('admin.logout');
 
 Route::post('/register', [AuthController::class, 'addadmin']);  // แก้ไขให้ใช้ store แทน register
 

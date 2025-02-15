@@ -36,7 +36,7 @@ class ApiController extends Controller
 
             // ถ้าเป็น Customer
             if ($customer && Hash::check($request->password, $customer->password)) {
-                Auth::guard('web')->login($customer);
+                Auth::guard('customer')->login($customer);
                 $token = $customer->createToken('Customer Access Token')->plainTextToken; // สร้าง API token
                 return response()->json([
                     'message' => 'Customer logged in successfully.',
@@ -131,7 +131,20 @@ class ApiController extends Controller
     
     public function logout(Request $request)
     {
-        $request->user()->tokens->delete(); // ลบ token ทั้งหมดของผู้ใช้
+        $customer = auth()->guard('customer')->user();
+        $admin = auth()->guard('admin')->user();
+    
+        // ถ้ามีผู้ใช้งานที่ล็อกอินอยู่
+        if ($customer) {
+            // ลบ token ทั้งหมดของผู้ใช้
+            $customer->tokens()->delete();  // ใช้ tokens() เพื่อดึง token แล้วลบทั้งหมด
+        }
+    
+        if ($admin) {
+            // ลบ token ทั้งหมดของผู้ใช้
+            $admin->tokens()->delete();  // ใช้ tokens() เพื่อดึง token แล้วลบทั้งหมด
+        }
+    
         return response()->json(['message' => 'Logged out successfully.'], 200);
     }
 

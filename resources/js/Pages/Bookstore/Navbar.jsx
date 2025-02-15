@@ -1,18 +1,17 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Inertia } from '@inertiajs/inertia';
 
-const Navbar = ({ customer, admin, token }) => {
-  useEffect(() => {
-    // เก็บ token ไว้ใน localStorage สำหรับการใช้งานต่อไป
-    if (token) {
-      localStorage.setItem('token', token); // เก็บใน localStorage
-    }
-  }, [token]);
+const Navbar = ({ customer}) => {
 
-  const handleLogout = () => {
-    // ลบ token จาก localStorage เมื่อออกจากระบบ
-    localStorage.removeItem('token');
-    Inertia.get('/logout'); // ไปที่ route logout
+  // ฟังก์ชัน logout
+  const logout = () => {
+    Inertia.post(route('logout'), {}, {
+      onFinish: () => {
+        
+        Inertia.get('/'); // ไปยังหน้าแรกหลังจาก logout
+
+      }
+    });
   };
 
   return (
@@ -25,42 +24,37 @@ const Navbar = ({ customer, admin, token }) => {
         </div>
 
         <div className="space-x-6">
-          {/* แสดงชื่อผู้ใช้ (customer หรือ admin) */}
-          {customer ? (
+          {/* แสดงชื่อผู้ใช้ (customer.username) */}
+          {customer && customer.username ? (
             <span className="text-white text-lg font-medium">
-              Welcome, {customer.username}!
+              {customer.username}
+
+              {/* เพิ่มระยะห่างระหว่างชื่อผู้ใช้และปุ่ม Logout */}
+              <button
+                onClick={logout}
+                className="ml-20 text-white text-lg font-medium hover:text-gray-200 transition duration-300"
+              >
+                Logout
+              </button>
             </span>
-          ) : admin ? (
-            <span className="text-white text-lg font-medium">
-              Welcome, {admin.username}!
-            </span>
+
           ) : (
             <>
-              {/* ถ้าไม่มี customer หรือ admin จะแสดงปุ่ม Login และ Register */}
+              {/* ถ้าไม่มี customer.username จะแสดงปุ่ม Login และ Register */}
               <button
-                onClick={() => Inertia.get('/login')} // ใช้ Inertia.get แทน Inertia.visit
+                onClick={() => Inertia.get('/login')}
                 className="text-white text-lg font-medium hover:text-gray-200 transition duration-300"
               >
                 Login
               </button>
-
+              
               <button
-                onClick={() => Inertia.get('/register')} // ใช้ Inertia.get แทน Inertia.visit
+                onClick={() => Inertia.get('/register')}
                 className="text-white text-lg font-medium hover:text-gray-200 transition duration-300"
               >
                 Register
               </button>
             </>
-          )}
-
-          {/* ปุ่ม Logout */}
-          {token && (
-            <button
-              onClick={handleLogout}
-              className="text-white text-lg font-medium hover:text-gray-200 transition duration-300"
-            >
-              Logout
-            </button>
           )}
         </div>
       </div>

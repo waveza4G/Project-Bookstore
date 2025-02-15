@@ -17,7 +17,9 @@ class TypebookFactory extends Factory
     public function definition(): array
     {
         return [
-            'typebook_name' => $this->faker->word(),
+            'typebook_name' => $this->faker->randomElement(['Caton', 'Manga', 'Novel', 'fiction', '-']),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

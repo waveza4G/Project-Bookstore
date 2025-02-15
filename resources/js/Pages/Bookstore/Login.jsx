@@ -53,19 +53,6 @@ export default function Login() {
                         {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
                     </div>
 
-                    {/* Remember me */}
-                    <div className="mb-4 flex items-center">
-                        <input
-                            id="remember"
-                            type="checkbox"
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) => setData('remember', e.target.checked)}
-                            className="form-checkbox h-5 w-5 text-blue-600"
-                        />
-                        <label htmlFor="remember" className="ml-2 text-gray-600">Remember me</label>
-                    </div>
-
                     {/* Login Button */}
                     <div className="mt-6">
                         <button

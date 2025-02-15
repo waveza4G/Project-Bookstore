@@ -27,7 +27,7 @@ class AuthController extends Controller
         if ($admin && Hash::check($request->password, $admin->password)) {
             Auth::guard('admin')->login($admin);
             $token = $admin->createToken('Admin Access Token')->plainTextToken;
-            return Inertia::render('Bookstore/Navbar', [
+            return Inertia::render('Bookstore/Adminpage', [
                 'admin' => $admin,
                 'token' => $token,
             ]);
@@ -37,7 +37,7 @@ class AuthController extends Controller
         if ($customer && Hash::check($request->password, $customer->password)) {
             Auth::guard('customer')->login($customer);
             $token = $customer->createToken('Customer Access Token')->plainTextToken;
-            return Inertia::render('Bookstore/Navbar', [
+            return Inertia::render('Bookstore/Dashboard', [
                 'customer' => $customer,
                 'token' => $token,
             ]);
@@ -121,7 +121,7 @@ class AuthController extends Controller
     Auth::guard('customer')->login($customer); // เข้าสู่ระบบอัตโนมัติหลังจากลงทะเบียน
 
     // ส่งข้อมูลกลับไปยัง frontend (React) ผ่าน Inertia
-    return Inertia::render('Bookstore/Navbar', [
+    return Inertia::render('Bookstore/Dashboard', [
         'customer' => $customer,  // ส่งข้อมูลลูกค้าไปยังหน้า Navbar
         'token' => $token, // ส่ง Token ไปใช้
     ]);
@@ -130,9 +130,27 @@ class AuthController extends Controller
 
 
     
-    public function logout(Request $request)
-    {
-        $request->user()->tokens->delete(); // ลบ token ทั้งหมดของผู้ใช้
-        return response()->json(['message' => 'Logged out successfully.'], 200);
+public function logout(Request $request)
+{   
+    
+    $customer = auth()->guard('customer')->user();
+    $admin = auth()->guard('admin')->user();
+
+    // ถ้ามีผู้ใช้งานที่ล็อกอินอยู่
+    if ($customer) {
+        // ลบ token ทั้งหมดของผู้ใช้
+        $customer->tokens()->delete();  // ใช้ tokens() เพื่อดึง token แล้วลบทั้งหมด
     }
+
+    if ($admin) {
+        // ลบ token ทั้งหมดของผู้ใช้
+        $admin->tokens()->delete();  // ใช้ tokens() เพื่อดึง token แล้วลบทั้งหมด
+    }
+
+    // ส่งผู้ใช้กลับไปที่หน้าแรก (หน้า Navbar)
+    return Inertia::render('Bookstore/Navbar'); 
+}
+
+
+
 }

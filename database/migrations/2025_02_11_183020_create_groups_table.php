@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('typebooks', function (Blueprint $table) {
+        Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->enum('typebook_name', ['Caton','Manga','Novel','fiction','-'])->default('-');
-            $table->timestamps();  // เพิ่มคอลัมน์ created_at และ updated_at
-
+            $table->enum('group_name', [
+                'Action', 'Adventure','Comedy', 'Drama',
+                'Fantasy', 'Horror', 'Kids','Mystery',
+                'Romance','School', 'Sci-Fi','-'
+            ])->default('-');
+            $table->timestamps();
         });
     }
 
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('typebooks');
+        Schema::dropIfExists('groups');
     }
 };

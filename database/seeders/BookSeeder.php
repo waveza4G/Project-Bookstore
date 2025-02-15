@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\Payment;
 use App\Models\Rental;
 use App\Models\Typebook;
+use App\Models\Group;
 
 class BookSeeder extends Seeder
 {
@@ -18,10 +19,9 @@ class BookSeeder extends Seeder
      */
     public function run(): void
     {
-        Book::factory(40)->create();
-        Customer::factory(30)->create();
-        Payment::factory(20)->create();
+
         Rental::factory(30)->create();
-        Typebook::factory(10)->create();
+
     }
 }
+    
