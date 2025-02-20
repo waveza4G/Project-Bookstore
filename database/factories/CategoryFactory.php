@@ -3,11 +3,11 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Typebook;
+use App\Models\Category;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Typebook>
  */
-class TypebookFactory extends Factory
+class CategoryFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,8 +17,11 @@ class TypebookFactory extends Factory
     public function definition(): array
     {
         return [
-            'typebook_name' => $this->faker->randomElement(['Caton', 'Manga', 'Novel', 'fiction', '-']),
-            'created_at' => now(),
+                'category_name' => $this->faker->randomElement([
+                    'Comics & Manga', 'Fiction', 'Novel', 'Education',
+                    'Food & Health', 'Literature'
+                ]),
+
             'updated_at' => now(),
         ];
     }

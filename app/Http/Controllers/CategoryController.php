@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Typebook;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
-class TypebookController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.

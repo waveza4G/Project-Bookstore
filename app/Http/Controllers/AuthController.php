@@ -6,151 +6,150 @@ use Inertia\Inertia;
 use App\Models\Admin;
 use App\Models\Customer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-    
-        $admin = Admin::where('email', $request->email)->first();
-        $customer = Customer::where('email', $request->email)->first();
-    
-        // ถ้าเป็น Admin
-        if ($admin && Hash::check($request->password, $admin->password)) {
-            Auth::guard('admin')->login($admin);
-            $token = $admin->createToken('Admin Access Token')->plainTextToken;
-            return Inertia::render('Bookstore/Adminpage', [
-                'admin' => $admin,
-                'token' => $token,
-            ]);
-        }
-    
-        // ถ้าเป็น Customer
-        if ($customer && Hash::check($request->password, $customer->password)) {
-            Auth::guard('customer')->login($customer);
-            $token = $customer->createToken('Customer Access Token')->plainTextToken;
-            return Inertia::render('Bookstore/Dashboard', [
-                'customer' => $customer,
-                'token' => $token,
-            ]);
-        }
-    
-        // Log failed login attempt
-        log::error('Login failed: ' . $request->email);
-        log::error('Login failed: ' . $request->password);
+{
+    // ตรวจสอบข้อมูลที่ส่งมา
+    Log::info('Login attempt with credentials:', $request->only('email', 'password'));
+
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    $credentials = $request->only('email', 'password');
+
+    // ลองล็อกอินใน Guard: customer
+    if (Auth::guard('customer')->attempt($credentials)) {
+        $request->session()->regenerate();
+
+        $customer = Auth::guard('customer')->user();
+        $token = $customer->createToken('Customer Access Token')->plainTextToken;
+
+        // เก็บ email และ token ใน session แทน user_id
+        $request->session()->put('email', $customer->email);
+        $request->session()->put('token', $token);
+
+        return redirect('/dashboard')->with('success', 'Welcome, Customer!');
     }
-    
-    
 
-    public function addadmin(Request $request)
+    // ถ้าเป็นการเข้าสู่ระบบแอดมิน
+    if (Auth::guard('admin')->attempt($credentials)) {
+        $request->session()->regenerate();
+
+        $admin = Auth::guard('admin')->user();
+        $token = $admin->createToken('Admin Access Token')->plainTextToken;
+
+        // เก็บ email และ token ใน session แทน user_id
+        $request->session()->put('email', $admin->email);
+        $request->session()->put('token', $token);
+
+        return redirect('/admin/dashboard')->with('success', 'Welcome, Admin!');
+    }
+    else {
+        // การล็อกอินล้มเหลว
+        Log::warning('Login failed: Invalid credentials', $credentials);
+        return back()->withErrors(['error' => 'Invalid credentials'])->withInput();
+    }
+}
+
+
+    public function AdminRegister(Request $request)
     {
-        // กำหนดกฎการตรวจสอบข้อมูล
+        // ตรวจสอบข้อมูลที่ได้รับจากฟอร์ม
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:admins',
-            'password' => 'required|string|min:8',
+            'username' => 'required|string|max:255|unique:admins|unique:customers',
+            'email' => 'required|string|email|max:255|unique:admins|unique:customers',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // ถ้าข้อมูลไม่ถูกต้องให้ส่งกลับข้อผิดพลาด
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+            Log::error('Admin registration validation failed', $validator->errors()->toArray());
+            return back()->withErrors($validator)->withInput();
         }
 
-        // สร้าง Admin ใหม่
+        // สร้างแอดมินใหม่
         $admin = Admin::create([
-            'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // เข้ารหัสรหัสผ่าน'
+            'password' => Hash::make($request->password),
         ]);
 
-        // ส่งกลับข้อมูล Admin ที่ลงทะเบียนสำเร็จ
-        return response()->json([
-            'message' => 'Admin registered successfully.',
-            'admin' => $admin,
-            'token' => $admin->createToken('Admin Access Token')->plainTextToken,
-        ], 201);
+        // สร้าง token และเก็บ email และ token ใน session แทน user_id
+        $token = $admin->createToken('Admin Access Token')->plainTextToken;
+        $request->session()->put('email', $admin->email);
+        $request->session()->put('token', $token);
+
+        // ล็อกอินแอดมิน
+        Auth::guard('admin')->login($admin);
+        return redirect('/admin/dashboard')->with('success', 'Admin registered successfully');
     }
 
     public function register(Request $request)
-{
-    // ตรวจสอบข้อมูลที่ได้รับจากฟอร์ม
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'lastname' => 'required|string|max:255',
-        'username' => 'required|string|max:255|unique:customers',
-        'phone' => 'required|string|unique:customers',
-        'email' => 'required|string|email|max:255|unique:customers',
-        'password' => 'required|string|min:8|confirmed',
-    ]);
+    {
+        // ตรวจสอบข้อมูลที่ได้รับจากฟอร์ม
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:customers|unique:admins',
+            'phone' => 'required|string|max:15|unique:customers',
+            'email' => 'required|string|email|max:255|unique:customers|unique:admins',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-    if ($validator->fails()) {
-        // บันทึกข้อผิดพลาดใน log
-        Log::error('Validation Error: ' . $validator->errors());  
+        if ($validator->fails()) {
+            Log::error('Registration validation failed', $validator->errors()->toArray());
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
-        // ส่งข้อผิดพลาดกลับไปยัง frontend (React)
-        return redirect()->back()->withErrors($validator)->withInput();
+        // สร้างลูกค้าใหม่
+        $customer = Customer::create([
+            'name' => $request->name,
+            'lastname' => $request->lastname,
+            'username' => $request->username,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // สร้าง token และเก็บ email และ token ใน session แทน user_id
+        $token = $customer->createToken('Customer Access Token')->plainTextToken;
+        $request->session()->put('email', $customer->email);
+        $request->session()->put('token', $token);
+
+        // ล็อกอินลูกค้า
+        Auth::guard('customer')->login($customer);
+        return redirect('/dashboard')->with('success', 'Registration successful');
     }
 
-    // สร้างลูกค้าใหม่
-    $customer = Customer::create([
-        'name' => $request->name,
-        'lastname' => $request->lastname,
-        'username' => $request->username,
-        'phone' => $request->phone,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
+    public function logout(Request $request)
+    {
+        // ตรวจสอบว่าเป็นลูกค้าหรือแอดมิน
+        if (Auth::guard('customer')->check()) {
+            $user = Auth::guard('customer')->user();
+            Auth::guard('customer')->logout();
+            Log::info('Customer logged out: ' . $user->email);
+        }
 
-    // สร้าง Token สำหรับ API
-    $token = $customer->createToken('Customer Access Token')->plainTextToken;
+        if (Auth::guard('admin')->check()) {
+            $user = Auth::guard('admin')->user();
+            Auth::guard('admin')->logout();
+            Log::info('Admin logged out: ' . $user->email);
+        }
 
-    // Log ข้อมูล
-    Log::info('Customer created successfully: ' . $customer->id);
+        // ลบข้อมูลใน session
+        $request->session()->forget('email');  // ลบแค่ email ที่ใช้กับ session
+        $request->session()->forget('token');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    // ล็อกอินลูกค้า
-    Auth::guard('customer')->login($customer); // เข้าสู่ระบบอัตโนมัติหลังจากลงทะเบียน
-
-    // ส่งข้อมูลกลับไปยัง frontend (React) ผ่าน Inertia
-    return Inertia::render('Bookstore/Dashboard', [
-        'customer' => $customer,  // ส่งข้อมูลลูกค้าไปยังหน้า Navbar
-        'token' => $token, // ส่ง Token ไปใช้
-    ]);
-}
-
-
-
-    
-public function logout(Request $request)
-{   
-    
-    $customer = auth()->guard('customer')->user();
-    $admin = auth()->guard('admin')->user();
-
-    // ถ้ามีผู้ใช้งานที่ล็อกอินอยู่
-    if ($customer) {
-        // ลบ token ทั้งหมดของผู้ใช้
-        $customer->tokens()->delete();  // ใช้ tokens() เพื่อดึง token แล้วลบทั้งหมด
+        return redirect('/dashboard')->with('success', 'Logged out successfully');
     }
-
-    if ($admin) {
-        // ลบ token ทั้งหมดของผู้ใช้
-        $admin->tokens()->delete();  // ใช้ tokens() เพื่อดึง token แล้วลบทั้งหมด
-    }
-
-    // ส่งผู้ใช้กลับไปที่หน้าแรก (หน้า Navbar)
-    return Inertia::render('Bookstore/Navbar'); 
-}
-
-
 
 }

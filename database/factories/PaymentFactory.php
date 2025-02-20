@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Book;
-use App\Models\Typebook;
 use App\Models\Payment;
 use App\Models\Rental;
 use App\Models\Customer;

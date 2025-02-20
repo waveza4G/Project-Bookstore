@@ -1,15 +1,12 @@
 import { useForm } from '@inertiajs/react';
 import React from 'react';
 
-export default function Register() {
+export default function AdminRegister() {
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',   // ชื่อ
-        lastname: '',   // นามสกุล
-        username: '',   // ชื่อผู้ใช้
-        phone: '',   // เบอร์โทรศัพท์
-        email: '',
-        password: '',
-        password_confirmation: '',
+        username: '',   // ชื่อ
+        email: '',  // อีเมล
+        password: '', // รหัสผ่าน
+        password_confirmation: '', // ยืนยันรหัสผ่าน
     });
 
     // ฟังก์ชันการส่งฟอร์ม
@@ -17,7 +14,7 @@ export default function Register() {
         e.preventDefault();
 
         // ส่งข้อมูลไปยัง backend
-        post(route('register'), data, {
+        post(route('admin.register'), data, {
             onFinish: () => {
                 reset('password', 'password_confirmation');
             }
@@ -27,62 +24,21 @@ export default function Register() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Register</h2>
+                <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Admin Register</h2>
                 <form onSubmit={submit}>
                     {/* ชื่อ */}
                     <div className="mb-4">
-                        <label htmlFor="name" className="block text-gray-700">First Name</label>
-                        <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                        />
-                        {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-                    </div>
-
-                    {/* นามสกุล */}
-                    <div className="mb-4">
-                        <label htmlFor="lastname" className="block text-gray-700">Last Name</label>
-                        <input
-                            type="text"
-                            name="lastname"
-                            id="lastname"
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            value={data.lastname}
-                            onChange={(e) => setData('lastname', e.target.value)}
-                        />
-                        {errors.lastname && <p className="text-red-500 text-sm">{errors.lastname}</p>}
-                    </div>
-
-                    {/* ชื่อผู้ใช้ */}
-                    <div className="mb-4">
-                        <label htmlFor="username" className="block text-gray-700">Username</label>
+                        <label htmlFor="name" className="block text-gray-700">Name</label>
                         <input
                             type="text"
                             name="username"
                             id="username"
                             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
                             value={data.username}
-                            onChange={(e) => setData('username', e.target.value)}
+                            onChange={(e) => setData('username', e.target.value)}  // Change 'name' to 'username'
                         />
-                        {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
-                    </div>
 
-                    {/* เบอร์โทรศัพท์ */}
-                    <div className="mb-4">
-                        <label htmlFor="phone" className="block text-gray-700">Phone</label>
-                        <input
-                            type="text"
-                            name="phone"
-                            id="phone"
-                            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            value={data.phone}
-                            onChange={(e) => setData('phone', e.target.value)}
-                        />
-                        {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+                        {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
                     </div>
 
                     {/* อีเมล */}

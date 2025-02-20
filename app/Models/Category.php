@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Typebook extends Model
+class Category extends Model
 {
     use HasFactory;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
-    protected $fillable = ['typebook_name'];
+    protected $fillable = ['category_name'];
 
     // ความสัมพันธ์: หมวดหมู่สามารถมีหลายหนังสือ
     public function books()

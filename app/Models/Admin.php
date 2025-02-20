@@ -10,7 +10,7 @@ class Admin extends Authenticatable  // เปลี่ยนจาก Model เ
 {
     use HasFactory, HasApiTokens;
 
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['username', 'email', 'password'];
 
     // ฟังก์ชันที่ใช้ตรวจสอบว่าเป็น admin หรือไม่
 

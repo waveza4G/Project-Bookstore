@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->string('book_name');  // ชื่อหนังสือ
-            $table->foreignId('typebook_id')->nullable()->constrained('typebooks')->onDelete('cascade');  // เชื่อมโยงกับ categories
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('cascade');  // เชื่อมโยงกับ categories
             $table->foreignId('group_id')->nullable()->constrained('groups')->onDelete('cascade');  // เชื่อมโยงกับ groups
             $table->integer('quantity');  // จำนวนหนังสือ
             $table->integer('remaining_quantity');  // จำนวนหนังสือที่เหลือ

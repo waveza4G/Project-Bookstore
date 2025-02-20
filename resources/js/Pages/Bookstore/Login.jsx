@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';  
+import { useForm } from '@inertiajs/react';
 import React from 'react';
 
 export default function Login() {
@@ -9,11 +9,10 @@ export default function Login() {
 
     const submit = (e) => {
         e.preventDefault();
-        // Use Inertia.post with the correct route for login
+        // ใช้ Inertia.post สำหรับการ login
         post(route('login'), data, {
             onFinish: () => {
                 reset('password');
-                Inertia.visit(route('Bookstore/Navbar')); // เปลี่ยนหน้าไปที่ navbar
             }
         });
     };
@@ -23,7 +22,7 @@ export default function Login() {
             <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
                 <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Log In</h2>
                 <form onSubmit={submit}>
-                    {/* Email */}
+                    {/* ฟอร์มกรอกข้อมูล */}
                     <div className="mb-4">
                         <label htmlFor="email" className="block text-gray-700">Email</label>
                         <input
@@ -38,7 +37,6 @@ export default function Login() {
                         {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
                     </div>
 
-                    {/* Password */}
                     <div className="mb-4">
                         <label htmlFor="password" className="block text-gray-700">Password</label>
                         <input
@@ -53,16 +51,13 @@ export default function Login() {
                         {errors.password && <p className="text-red-500 text-sm mt-2">{errors.password}</p>}
                     </div>
 
-                    {/* Login Button */}
-                    <div className="mt-6">
-                        <button
-                            type="submit"
-                            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
-                            disabled={processing}
-                        >
-                            {processing ? 'Logging in...' : 'Log In'}
-                        </button>
-                    </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
+                        disabled={processing}
+                    >
+                        {processing ? 'Logging in...' : 'Log In'}
+                    </button>
                 </form>
             </div>
         </div>

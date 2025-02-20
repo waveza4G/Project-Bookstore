@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
-class Customer extends Authenticatable 
+class Customer extends Authenticatable
 {
     use HasFactory, HasApiTokens;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
     protected $fillable = ['name', 'lastname', 'username', 'phone', 'email', 'password', 'status', 'penalty', 'book_count'];
 
-    // ความสัมพันธ์: ลูกค้าสามารถยืมหนังสือหลายเล่ม
     public function rentals()
     {
         return $this->hasMany(Rental::class);

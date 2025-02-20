@@ -6,18 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        // สร้างตาราง groups
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->enum('group_name', [
-                'Action', 'Adventure','Comedy', 'Drama',
-                'Fantasy', 'Horror', 'Kids','Mystery',
-                'Romance','School', 'Sci-Fi','-'
-            ])->default('-');
+            $table->string('group_name'); // เปลี่ยนจาก name() เป็น string()
             $table->timestamps();
         });
     }

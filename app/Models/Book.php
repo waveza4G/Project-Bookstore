@@ -10,12 +10,12 @@ class Book extends Model
     use HasFactory;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
-    protected $fillable = ['book_name', 'typebook_id', 'quantity', 'remaining_quantity', 'price', 'image','sold_quantity'];
+    protected $fillable = ['book_name', 'category_id','group_id' ,'quantity', 'remaining_quantity', 'price','publisher','author','description', 'image','sold_quantity'];
 
     // ความสัมพันธ์: หนังสือหนึ่งเล่มจะเชื่อมโยงกับหมวดหมู่เดียว
-    public function typebook()
+    public function category()
     {
-        return $this->belongsTo(Typebook::class);
+        return $this->belongsTo(Category::class);
     }
 
     // ความสัมพันธ์: หนังสือหนึ่งเล่มสามารถมีหลายการยืม
@@ -27,6 +27,6 @@ class Book extends Model
     // ความสัมพันธ์: หนังสือสามารถมีหลายการชำระเงิน (เชื่อมกับการยืม)
     public function payments()
     {
-        return $this->hasMany(Payment::class); 
+        return $this->hasMany(Payment::class);
     }
 }

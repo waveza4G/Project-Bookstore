@@ -6,7 +6,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use Inertia\Inertia;
-// เส้นทางสำหรับการเข้าสู่ระบบ
+
 Route::post('/login', [ApiController::class, 'login'])->name('login');
 Route::post('/admin/login', [ApiController::class, 'login'])->name('admin.login');
 

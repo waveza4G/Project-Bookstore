@@ -1,18 +1,15 @@
-import React from 'react';
-import { Inertia } from '@inertiajs/inertia';
+import { Inertia } from "@inertiajs/inertia";
+import { usePage } from "@inertiajs/react";
 
-const Navbar = ({ customer}) => {
+const Navbar = () => {
+  const { auth } = usePage().props;
+  const customer = auth.customer;
+  const admin = auth.admin;
 
-  // ฟังก์ชัน logout
   const logout = () => {
-    Inertia.post(route('logout'), {}, {
-      onFinish: () => {
-        
-        Inertia.get('/'); // ไปยังหน้าแรกหลังจาก logout
-
-      }
-    });
+    Inertia.post("/logout"); // ใช้ Inertia สำหรับการ logout
   };
+
 
   return (
     <div className="bg-blue-600 shadow-md py-4">
@@ -24,32 +21,42 @@ const Navbar = ({ customer}) => {
         </div>
 
         <div className="space-x-6">
-          {/* แสดงชื่อผู้ใช้ (customer.username) */}
-          {customer && customer.username ? (
+          {customer ? (
             <span className="text-white text-lg font-medium">
               {customer.username}
-
-              {/* เพิ่มระยะห่างระหว่างชื่อผู้ใช้และปุ่ม Logout */}
               <button
                 onClick={logout}
-                className="ml-20 text-white text-lg font-medium hover:text-gray-200 transition duration-300"
+                className="ml-4 text-white text-lg font-medium hover:text-gray-200 transition duration-300"
               >
                 Logout
               </button>
             </span>
-
+          ) : admin ? (
+            <span className="text-white text-lg font-medium">
+              {admin.username}
+              <button
+                onClick={logout}
+                className="ml-6 text-white text-lg font-medium hover:text-gray-200 transition duration-300"
+              >
+                Logout
+              </button>
+              <button
+                onClick={() => Inertia.get("/admin/dashboard")}
+                className="ml-10 text-white text-lg font-medium hover:text-gray-200 transition duration-300"
+              >
+                Admin
+              </button>
+            </span>
           ) : (
             <>
-              {/* ถ้าไม่มี customer.username จะแสดงปุ่ม Login และ Register */}
               <button
-                onClick={() => Inertia.get('/login')}
+                onClick={() => Inertia.get("/login")}
                 className="text-white text-lg font-medium hover:text-gray-200 transition duration-300"
               >
                 Login
               </button>
-              
               <button
-                onClick={() => Inertia.get('/register')}
+                onClick={() => Inertia.get("/register")}
                 className="text-white text-lg font-medium hover:text-gray-200 transition duration-300"
               >
                 Register

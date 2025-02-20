@@ -1,18 +1,13 @@
-import React from 'react';
-import Navbar from './Navbar';
-import Swiper from './swiper';
+import React from "react";
+import Navbar from "./Navbar";
 
 const Dashboard = () => {
-  const customer = { username: ''}; // หรือ null ถ้าไม่มีข้อมูลผู้ใช้
-
   return (
     <div>
-        <Navbar customer={customer} />
-        <div className="container mx-auto px-4">
-         <Swiper />
-
-
-    </div>
+      <Navbar />
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold">Welcome to Dashboard</h1>
+      </div>
     </div>
   );
 };

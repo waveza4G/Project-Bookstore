@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('typebooks', function (Blueprint $table) {
+        Schema::create('categories', function (Blueprint $table) {
             $table->id();
-            $table->enum('typebook_name', ['Caton','Manga','Novel','fiction','-'])->default('-');
+            $table->string('category_name'); // เปลี่ยนจาก name() เป็น string()
             $table->timestamps();  // เพิ่มคอลัมน์ created_at และ updated_at
 
         });
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('typebooks');
+        Schema::dropIfExists('categories');
     }
 };
