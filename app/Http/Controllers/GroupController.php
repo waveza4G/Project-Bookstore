@@ -2,64 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Group;
 use Illuminate\Http\Request;
+use App\Models\Group;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class GroupController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // ดึงข้อมูลกลุ่มทั้งหมด
     public function index()
     {
-        //
+        $groups = Group::orderBy('id', 'asc')->get();
+
+        return Inertia::render('Store/AddGroup', [
+            'groups' => $groups
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // บันทึกข้อมูลใหม่
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'group_name' => 'required|string|max:255|unique:groups,group_name',
+        ]);
+
+        Group::create(['group_name' => $validated['group_name']]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Group added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Group $group)
+    // ลบกลุ่ม
+    public function destroy($id)
     {
-        //
-    }
+        $group = Group::findOrFail($id);
+        $group->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Group $group)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Group $group)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Group $group)
-    {
-        //
+        return redirect()->back()->with('success', 'Group deleted successfully!');
     }
 }

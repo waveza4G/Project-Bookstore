@@ -19,11 +19,11 @@ class Customer extends Authenticatable
         return $this->hasMany(Rental::class);
     }
 
-    // ความสัมพันธ์: ลูกค้าสามารถทำการชำระเงินหลายครั้ง
     public function payments()
     {
         return $this->hasMany(Payment::class);
     }
+
 
     // เก็บค่ารหัสผ่านโดยการเข้ารหัส
     protected $hidden = ['password'];

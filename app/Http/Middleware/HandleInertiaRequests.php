@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,7 +44,9 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success') ?? null,
                 'error' => $request->session()->get('error') ?? null,
             ],
+            'categories' => DB::table('categories')->select('id', 'category_name')->get(),
         ];
+
     }
 
 }

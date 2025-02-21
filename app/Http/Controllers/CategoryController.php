@@ -2,64 +2,41 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Models\Category;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // ดึงข้อมูลหมวดหมู่ทั้งหมด
     public function index()
     {
-        //
+        $categories = Category::orderBy('id', 'asc')->get();
+
+        return Inertia::render('Store/AddCategory', [
+            'categories' => $categories
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // บันทึกข้อมูลใหม่
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'category_name' => 'required|string|max:255|unique:categories,category_name',
+        ]);
+
+        Category::create(['category_name' => $validated['category_name']]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Category added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Typebook $typebook)
+    // ลบหมวดหมู่
+    public function destroy($id)
     {
-        //
-    }
+        $category = Category::findOrFail($id);
+        $category->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Typebook $typebook)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Typebook $typebook)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Typebook $typebook)
-    {
-        //
+        return redirect()->back()->with('success', 'Category deleted successfully!');
     }
 }

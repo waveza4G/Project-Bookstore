@@ -1,12 +1,15 @@
 import React from "react";
 import Navbar from "./Navbar";
+import Swiper from "./Swiper";
+import Category from "./Category";
 
 const Dashboard = () => {
   return (
     <div>
-      <Navbar />
+      <Navbar/>
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold">Welcome to Dashboard</h1>
+        <Swiper/>
+        <Category/>
       </div>
     </div>
   );

@@ -18,15 +18,14 @@ class Rental extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    // ความสัมพันธ์: การยืมหนังสือหนึ่งเล่มจะเชื่อมโยงกับหนังสือหนึ่งเล่ม
     public function book()
     {
         return $this->belongsTo(Book::class);
     }
 
-    // ความสัมพันธ์: การยืมหนังสือหนึ่งเล่มสามารถมีการชำระเงินหลายครั้ง
-    public function payments()
+    public function rental()
     {
-        return $this->hasMany(Payment::class);
+        return $this->belongsTo(Rental::class);
     }
+
 }

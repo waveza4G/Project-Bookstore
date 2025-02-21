@@ -18,15 +18,19 @@ class Book extends Model
         return $this->belongsTo(Category::class);
     }
 
-    // ความสัมพันธ์: หนังสือหนึ่งเล่มสามารถมีหลายการยืม
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
     public function rentals()
     {
         return $this->hasMany(Rental::class);
     }
 
-    // ความสัมพันธ์: หนังสือสามารถมีหลายการชำระเงิน (เชื่อมกับการยืม)
     public function payments()
     {
         return $this->hasMany(Payment::class);
     }
+
 }
