@@ -9,20 +9,60 @@ use App\Models\Group;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\DB;
 class BookController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function Showcategory(Request $request)
     {
-        //
+        // รับค่าพารามิเตอร์ categoryName หรือ group_name ที่ส่งมาจาก query string
+        $categoryName = $request->input('categoryName');
+        $groupName = $request->input('group_name');
+
+        // กรองหนังสือตาม categoryName หรือ groupName
+        if ($categoryName) {
+            // ถ้ามี categoryName ให้กรองหนังสือตามหมวดหมู่
+            $books = DB::table('books')
+                ->join('categories', 'books.category_id', '=', 'categories.id')
+                ->select(
+                    'books.id', 'books.book_name', 'books.image', 'books.price', 'books.author',
+                    'books.description', 'books.publisher', 'books.remaining_quantity',
+                    'categories.category_name'
+                )
+                ->where('categories.category_name', $categoryName) // กรองตาม categoryName
+                ->get();
+        } elseif ($groupName) {
+            // ถ้ามี groupName ให้กรองหนังสือตามกลุ่ม
+            $books = DB::table('books')
+                ->join('categories', 'books.category_id', '=', 'categories.id')
+                ->join('groups', 'books.group_id', '=', 'groups.id') // เชื่อมกับตาราง groups
+                ->select(
+                    'books.id', 'books.book_name', 'books.image', 'books.price', 'books.author',
+                    'books.description', 'books.publisher', 'books.remaining_quantity',
+                    'categories.category_name', 'groups.group_name'
+                )
+                ->where('groups.group_name', $groupName) // กรองตาม groupName
+                ->get();
+        }
+        // ส่งข้อมูลไปยัง view หรือ inertia
+        return inertia('Bookstore/Showcategory', [
+            'books' => $books,
+            'categoryName' => $categoryName,
+            'groupName' => $groupName
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function show(Book $book)
+    {
+        // ดึงข้อมูลหนังสือที่เลือกมาแสดง
+        return inertia('Bookstore/Detail', [
+            'book' => $book
+        ]);
+    }
+
+
+
+
+
     public function create()
     {
         return Inertia::render('Store/Createbook', [
@@ -72,10 +112,6 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.

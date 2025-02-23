@@ -45,7 +45,26 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error') ?? null,
             ],
             'categories' => DB::table('categories')->select('id', 'category_name')->get(),
-        ];
+            'groups' => DB::table('groups')->select('id', 'group_name')->get(),
+
+            'books' => DB::table('books')
+            ->join('categories', 'books.category_id', '=', 'categories.id')  // join กับ categories
+            ->join('groups', 'books.group_id', '=', 'groups.id')  // join กับ groups
+            ->select(
+                'books.id',
+                'books.book_name',
+                'books.image',
+                'books.price',
+                'books.author',
+                'books.description',
+                'books.publisher',
+                'books.remaining_quantity',
+                'categories.category_name',
+                'groups.group_name'
+            )
+            ->take(10)
+            ->get(),
+    ];
 
     }
 

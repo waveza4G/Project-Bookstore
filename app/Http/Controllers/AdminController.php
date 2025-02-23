@@ -274,8 +274,14 @@ class AdminController extends Controller
                 $model = Rental::findOrFail($id);
             } elseif ($table == 2) {
                 // ลบข้อมูลจากตาราง Group
-                $model = Group::findOrFail($id);
+                $model = Book::findOrFail($id);
             } elseif ($table == 3) {
+                // ลบข้อมูลจากตาราง Admin
+                $model = Customer::findOrFail($id);
+            } elseif ($table == 4) {
+                // ลบข้อมูลจากตาราง Group
+                $model = Payment::findOrFail($id);
+            } elseif ($table == 5) {
                 // ลบข้อมูลจากตาราง Admin
                 $model = Admin::findOrFail($id);
             } else {

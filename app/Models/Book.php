@@ -15,8 +15,9 @@ class Book extends Model
     // ความสัมพันธ์: หนังสือหนึ่งเล่มจะเชื่อมโยงกับหมวดหมู่เดียว
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
+
 
     public function group()
     {

@@ -25,9 +25,17 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::get('/book/{book}', [BookController::class, 'show'])->name('books.show');
+
 });
 
-    
+
+// Route::get('/highlight/{category}', [BookController::class, 'highlight'])->name('highlight');
+
+// Route::get('/highlight', function () {return inertia('Bookstore/Highlight');})->name('highlight.index');
+Route::get('/Showcategory', [BookController::class, 'Showcategory'])->name('Showcategory.index');
+
+Route::get('/book/{book}', [BookController::class, 'show'])->name('books.show');
 
 Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
