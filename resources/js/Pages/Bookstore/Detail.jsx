@@ -4,7 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import Navbar from "./Navbar";
 
 const Detail = () => {
-  const { book, auth, rentals } = usePage().props; // ดึงข้อมูล rentals จาก share()
+  const { book, auth, rentals, rentalAmount } = usePage().props; // ดึงข้อมูล rentals และ rentalAmount จาก share()
 
   // อัตราค่าเช่าตามจำนวนวันที่เช่า (1-7 วัน)
   const rentalRates = {
@@ -44,7 +44,7 @@ const Detail = () => {
     const rentalAmount = rentalPrice; // กำหนดราคาค่าเช่า
 
     // ใช้ Inertia.post แทน Inertia.visit
-    Inertia.post('/rental/complete', {
+    Inertia.post('/rental', {
       amount: rentalAmount,
       bookId: bookId,
       rental_days: rentalDays
@@ -88,13 +88,13 @@ const Detail = () => {
               </span>
             </div>
 
-            <p className="mt-2">
-              <strong>ราคาค่าเช่า:</strong> {rentalPrice} บาท
-            </p>
-
+            {/* เช็คว่าเช่าหนังสือแล้วหรือยัง */}
             {(auth.customer || auth.admin) ? (
               existingRental ? (
                 <div>
+                  <p className="mt-2">
+                    <strong>ราคาค่าเช่า:</strong> ฿{existingRental.amount} {/* แสดงจำนวนเงินที่ต้องชำระ */}
+                  </p>
                   <p className="text-red-500 font-bold mt-4">📌 คุณเช่าหนังสือเล่มนี้แล้ว</p>
 
                   {existingRental.status === "-" && (
@@ -121,12 +121,16 @@ const Detail = () => {
                     required
                     className="border p-2 ml-2"
                   />
+                  <p className="mt-2">
+                    <strong>ราคาค่าเช่า:</strong> ฿{rentalPrice} {/* แสดงราคาค่าเช่าที่คำนวณ */}
+                  </p>
                 </div>
               )
             ) : (
               <p className="text-red-500 mt-4">⚠️ คุณต้องเข้าสู่ระบบก่อนทำการเช่าหนังสือ</p>
             )}
 
+            {/* ถ้าไม่มีการเช่าแล้ว ให้แสดงปุ่มเช่าหนังสือ */}
             <div className="mt-6 flex justify-between">
               <button
                 onClick={() => window.history.back()}
@@ -152,3 +156,4 @@ const Detail = () => {
 };
 
 export default Detail;
+    

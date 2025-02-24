@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { Inertia } from '@inertiajs/inertia';
 import React, { useState } from 'react';
 import Navbar from '../Bookstore/Navbar';
 
@@ -19,57 +20,9 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
             { label: 'วันที่ยืมหนังสือ', key: 'rental_date' },
             { label: 'วันที่ครบกำหนด', key: 'due_date' },
             { label: 'วันที่คืนหนังสือ', key: 'return_date' },
+            { label: 'จำนวนเงินที่ต้องชำระ', key: 'amount' }, // เพิ่มคอลัมน์ 'amount'
             { label: 'Option', key: 'option' },
-        ],
-
-        2: [
-            { label: 'ID', key: 'id' },
-            { label: 'Book Name', key: 'book_name' },
-            { label: 'Category ID', key: 'category_id' },
-            { label: 'Category Name', key: 'category.category_name' }, // ✅ เพิ่ม category_name ให้ตรงกับ DB
-            { label: 'Group ID', key: 'group_id' },
-            { label: 'Group Name', key: 'group.group_name' }, // ✅ เพิ่ม group_name ให้ตรงกับ DB
-            { label: 'Quantity', key: 'quantity' },
-            { label: 'Remaining Quantity', key: 'remaining_quantity' },
-            { label: 'Sold Quantity', key: 'sold_quantity' },
-            { label: 'Price', key: 'price' },
-            { label: 'Publisher', key: 'publisher' },
-            { label: 'Author', key: 'author' },
-            { label: 'Description', key: 'description' },
-            { label: 'Image', key: 'image' },
-            { label: 'Option', key: 'option' },
-        ],
-
-        3: [
-            { label: 'ID', key: 'id' },
-            { label: 'ชื่อ', key: 'name' },
-            { label: 'Username', key: 'username' },
-            { label: 'Email', key: 'email' },
-            { label: 'Phone', key: 'phone' },
-            { label: 'Lastname', key: 'lastname' },
-            { label: 'จำนวนหนังสือที่ยืม', key: 'book_count' },
-            { label: 'วันที่ยืมล่าสุด', key: 'rentals.rental_date' },
-            { label: 'สถานะการชำระเงิน', key: 'payments.status' },
-            { label: 'Option', key: 'option' },
-        ],
-
-        4: [
-            { label: 'ID', key: 'id' },
-            { label: 'ยอดชำระเงิน', key: 'payment_amount' },
-            { label: 'สถานะการชำระเงิน', key: 'status' },
-            { label: 'วันที่ชำระเงิน', key: 'payment_date' },
-            { label: 'Penalty', key: 'penalty' },
-            { label: 'รหัสลูกค้า', key: 'customer_id' },
-            { label: 'รหัสหนังสือ', key: 'book_id' },
-            { label: 'รหัสการยืม', key: 'rental_id' },
-            { label: 'Option', key: 'option' },
-        ],
-
-        5: [
-            { label: 'ID', key: 'id' },
-            { label: 'Username', key: 'username' },
-            { label: 'Email', key: 'email' },
-            { label: 'Option', key: 'option' },
+            { label: 'Payment', key: 'Payment' }, // คอลัมน์ Payment
         ],
     };
 
@@ -122,9 +75,9 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
         }, { preserveState: true });
     };
 
-
     const handleDelete = (id) => {
         if (confirm('Are you sure you want to delete this record?')) {
+            // ตรวจสอบว่าค่าของ selectedTable ถูกต้อง
             router.delete(`/admin/dashboard/${selectedTable}/${id}`, {
                 onSuccess: () => {
                     // เมื่อการลบเสร็จสมบูรณ์, รีเฟรชหน้าพร้อมกับค่าปัจจุบันใน URL
@@ -134,30 +87,29 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
         }
     };
 
-
     return (
         <>
             <Navbar />
             <div className="p-8 bg-gray-50 min-h-screen">
                 <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center space-x-4">
-                    <h1 className="text-3xl font-semibold text-gray-800">Admin Dashboard</h1>
-                    <form onSubmit={handleSearch} className="flex items-center space-x-2">
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-64 p-2 border border-gray-300 rounded-lg shadow-sm text-sm"
-                        />
-                        <button
-                            type="submit"
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                        >
-                            Search
-                        </button>
-                    </form>
-                </div>
+                    <div className="flex items-center space-x-4">
+                        <h1 className="text-3xl font-semibold text-gray-800">Admin Dashboard</h1>
+                        <form onSubmit={handleSearch} className="flex items-center space-x-2">
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-64 p-2 border border-gray-300 rounded-lg shadow-sm text-sm"
+                            />
+                            <button
+                                type="submit"
+                                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                            >
+                                Search
+                            </button>
+                        </form>
+                    </div>
 
                     <div className="flex items-center space-x-2">
                         <label htmlFor="table-select" className="text-gray-700 font-medium">Select Table:</label>
@@ -196,7 +148,6 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
 
                 {/* 🔎 ฟอร์มค้นหา */}
 
-
                 <div className="overflow-x-auto rounded-lg shadow-md">
                     <table className="w-full bg-white rounded-lg">
                         <thead>
@@ -220,45 +171,70 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
                             </tr>
                         </thead>
                         <tbody>
-    {table?.data?.length > 0 ? (
-        table.data.map((row, index) => (
-            <tr
-                key={row.id}
-                className={`border-b ${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'} hover:bg-gray-200`}
-            >
-                {columns[selectedTable]?.map((col) => (
-                    <td key={col.key} className="px-6 py-4 text-gray-700 whitespace-nowrap">
-                        {col.key !== 'option' ? (
-                            getValue(row, col.key)
-                        ) : (
-                            <div className="flex space-x-2">
-                                <button
-                                    onClick={() => router.visit(`/admin/edit/${selectedTable}/${row.id}`)}
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(row.id)}
-                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        )}
-                    </td>
-                ))}
-            </tr>
-        ))
-    ) : (
-        <tr>
-            <td colSpan={columns[selectedTable]?.length} className="text-center py-4 text-gray-500">
-                No data found
-            </td>
-        </tr>
-    )}
-</tbody>
+                            {table?.data?.length > 0 ? (
+                                table.data.map((row, index) => (
+                                    <tr
+                                        key={row.id}
+                                        className={`border-b ${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'} hover:bg-gray-200`}
+                                    >
+                                        {columns[selectedTable]?.map((col) => (
+                                            <td key={col.key} className="px-6 py-4 text-gray-700 whitespace-nowrap">
+                                                {col.key !== 'option' && col.key !== 'Payment' ? (
+                                                    getValue(row, col.key)
+                                                ) : col.key === 'Payment' ? (
+                                                    // เพิ่มเงื่อนไขการตรวจสอบสถานะ 'borrowed'
+                                                    row.status === 'borrowed' ? (
+                                                        <button
+                                                            onClick={() => router.visit(`/admin/return/${row.id}`)} // ปรับ URL ไปหน้าการคืนหนังสือ
+                                                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                                                        >
+                                                            ยืนยันการคืน
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => {
+                                                                const rentalId = row.id; // รหัสการเช่า
+                                                                const paymentAmount = row.amount; // จำนวนเงินที่ชำระ (จากจำนวนเงินที่ต้องชำระ)
+                                                                Inertia.post('/rental/complete', {
+                                                                    rental_id: rentalId,
+                                                                    payment_amount: paymentAmount,  // ส่งจำนวนเงินที่ชำระไป
+                                                                    book_id: row.book_id,  // ส่งรหัสหนังสือ
+                                                                });
+                                                            }}
+                                                            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                                                        >
+                                                            ยืนยันการชำระเงิน
+                                                        </button>
 
+                                                    )
+                                                ) : (
+                                                    <div className="flex space-x-2">
+                                                        <button
+                                                            onClick={() => router.visit(`/admin/edit/${selectedTable}/${row.id}`)}
+                                                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(row.id)}
+                                                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={columns[selectedTable]?.length} className="text-center py-4 text-gray-500">
+                                        No data found
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
                     </table>
                 </div>
 

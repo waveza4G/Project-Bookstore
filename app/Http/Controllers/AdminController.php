@@ -10,6 +10,7 @@ use App\Models\Group;
 use App\Models\Payment;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +27,7 @@ class AdminController extends Controller
 
         // รายชื่อคอลัมน์ที่สามารถใช้เรียงได้ในแต่ละตาราง
         $sortableColumns = [
-            1 => ['id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date', 'customer.name', 'customer.lastname','status','image'],
+            1 => ['id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date', 'customer.name', 'customer.lastname','status','amount'],
             2 => ['id', 'book_name','category_id','category.category_name','group_id','group.group_name', 'quantity', 'remaining_quantity','price', 'publisher', 'author', 'description','sold_quantity'],
             3 => ['id', 'name', 'username', 'email', 'phone', 'lastname',  'book_count','rentals.rental_date','payments.status',],
             4 => ['id', 'payment_amount', 'status', 'payment_date','penalty','customer_id','customer.name','book_id','book.book_name','rentals.rental_date','rental_id'],
@@ -40,8 +41,8 @@ class AdminController extends Controller
 
         // คำสั่งดึงข้อมูลตามตารางที่เลือก
         if ($selectedTable == 1) {
-            $table = Rental::selectRaw('rentals.*, customers.name as customer_name, customers.lastname as customer_lastname')
-                ->join('customers', 'rentals.customer_id', '=', 'customers.id')
+            $table = Rental::selectRaw('rentals.*, customers.name as customer_name, customers.lastname as customer_lastname, rentals.amount') // เพิ่ม 'amount'
+            ->join('customers', 'rentals.customer_id', '=', 'customers.id')
                 ->with('book', 'customer')
                 ->when($query, function ($q) use ($query) {
                     return $q->where('rentals.id', 'like', "%{$query}%")
@@ -50,7 +51,8 @@ class AdminController extends Controller
                         ->orWhere('rentals.return_date', 'like', "%{$query}%")
                         ->orWhere('customers.name', 'like', "%{$query}%")
                         ->orWhere('customers.lastname', 'like', "%{$query}%")
-                        ->orWhere('rentals.status', 'like', "%{$query}%");
+                        ->orWhere('rentals.status', 'like', "%{$query}%")
+                        ->orWhere('rentals.amount', 'like', "%{$query}%"); // เพิ่มการค้นหาค่าของ 'amount'
                 })
                 ->orderBy(
                     match ($sortBy) {
@@ -189,7 +191,7 @@ class AdminController extends Controller
     public function edit($table, $id)
     {
         if ($table == 1) {
-            $record = Rental::select('id', 'customer_id', 'book_id', 'rental_date', 'due_date','status',  'return_date')
+            $record = Rental::select('id', 'customer_id', 'book_id', 'rental_date', 'due_date','status',  'return_date','amount')
                 ->with('customer:id,name,lastname,status', 'book:id,book_name')
                 ->findOrFail($id);
         } elseif ($table == 2) {
@@ -228,6 +230,7 @@ class AdminController extends Controller
                 'due_date' => 'nullable|date_format:Y-m-d',
                 'return_date' => 'nullable|date_format:Y-m-d',
                 'status' => 'required|string',
+                'amount' => 'required|numeric|min:0',
             ]);
             Rental::where('id', $id)->update($validated);
         } elseif ($table == 2) {
@@ -287,19 +290,14 @@ class AdminController extends Controller
 
             // ตรวจสอบว่ากำลังลบข้อมูลจากตารางไหน
             if ($table == 1) {
-                // ลบข้อมูลจากตาราง Rental
                 $model = Rental::findOrFail($id);
             } elseif ($table == 2) {
-                // ลบข้อมูลจากตาราง Group
                 $model = Book::findOrFail($id);
             } elseif ($table == 3) {
-                // ลบข้อมูลจากตาราง Admin
                 $model = Customer::findOrFail($id);
             } elseif ($table == 4) {
-                // ลบข้อมูลจากตาราง Group
                 $model = Payment::findOrFail($id);
             } elseif ($table == 5) {
-                // ลบข้อมูลจากตาราง Admin
                 $model = Admin::findOrFail($id);
             } else {
                 abort(404); // ถ้าไม่มีตารางที่ตรงกันให้แสดง 404
@@ -358,9 +356,45 @@ public function showUploadQRImage($id)
     ]);
 }
 
-// RentalController.php
 
-// RentalController.php
+public function complete(Request $request)
+{
+    $admin = Auth::guard('admin')->user();  // ตรวจสอบ admin
+
+    if (!$admin) {
+        return response()->json(['error' => 'กรุณาเข้าสู่ระบบก่อน'], 401); // ถ้าไม่ใช่ admin
+    }
+
+    // รับข้อมูลจาก request
+    $rentalId = $request->input('rental_id'); // รับรหัสการเช่า
+    $paymentAmount = $request->input('payment_amount'); // จำนวนเงินที่ชำระ
+    $bookId = $request->input('book_id'); // รหัสหนังสือ
+
+    // ค้นหาข้อมูลการเช่า
+    $rental = Rental::findOrFail($rentalId);
+
+    // อัปเดตสถานะการเช่าให้เป็น 'borrowed'
+    $rental->status = 'borrowed';
+    $rental->save();
+
+    // สร้างการชำระเงินใหม่
+    $payment = Payment::create([
+        'customer_id' => $rental->customer_id, // ใช้ customer_id จากข้อมูลการเช่า
+        'book_id' => $bookId,
+        'rental_id' => $rental->id,
+        'payment_amount' => $paymentAmount, // จำนวนเงินที่ชำระ
+        'status' => 'paid',  // สถานะการชำระเงิน
+        'penalty' => 0,  // ไม่มีค่าปรับ
+        'payment_date' => now(), // วันที่ชำระเงิน
+    ]);
+
+    // อัปเดตจำนวนเงินที่ต้องชำระในตาราง rentals (หากไม่มีก็สามารถตั้งเป็น null ได้)
+    $rental->amount = $paymentAmount;
+    $rental->save();
+
+    return redirect('/admin/dashboard')->with('message', 'การชำระเงินได้รับการยืนยัน');
+}
+
 
 
 }

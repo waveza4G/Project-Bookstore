@@ -61,6 +61,12 @@
                                 <label>Return Date:</label>
                                 <input type="date" name="return_date" value={data.return_date || ''} onChange={handleChange} className="border p-2 w-full" />
 
+                                <label>Status:</label>
+                                <select name="status" value={data.status} onChange={handleChange} className="border p-2 w-full">
+                                    <option value="-">-</option>
+                                    <option value="borrowed">Borrowed</option>
+                                </select>
+
                             </>
                         )}
 
@@ -139,11 +145,7 @@
                                 <label>Phone:</label>
                                 <input type="text" name="phone" value={data.phone} onChange={handleChange} className="border p-2 w-full" />
 
-                                <label>Status:</label>
-                                <select name="status" value={data.status} onChange={handleChange} className="border p-2 w-full">
-                                    <option value="-">-</option>
-                                    <option value="borrowed">Borrowed</option>
-                                </select>
+
                             </>
                         )}
 
@@ -155,9 +157,9 @@
 
                                 <label>Status:</label>
                                 <select name="status" value={data.status ?? ''} onChange={handleChange} className="border p-2 w-full">
-                                    <option value="">Select Status</option>
-                                    <option value="on_time">On Time</option>
-                                    <option value="late">Late</option>
+                                <option value="">Select Status</option>
+                                <option value="paid">Paid</option>
+                                <option value="-">-</option>
                                 </select>
 
 

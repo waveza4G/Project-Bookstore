@@ -36,7 +36,8 @@ Route::middleware('guest')->group(function () {
 // เส้นทางสำหรับหน้าชำระเงิน
 
 // Route::get('/qrcode/{customerId}', [RentalController::class, 'show'])->name('qrcode.show');
-Route::post('/rental/complete', [RentalController::class, 'complete'])->name('rental.complete');
+Route::post('/rental', [RentalController::class, 'rental'])->name('rental.wait');
+Route::post('/rental/complete', [AdminController::class, 'complete'])->name('rental.complete');
 
 Route::get('/rental/{customerId}/book/{bookId}/days/{rentalDays}', [RentalController::class, 'create'])->name('rental.create');
 Route::post('/payment/confirm', [RentalController::class, 'confirmPayment'])->name('payment.confirm');
@@ -64,6 +65,8 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/edit/{table}/{id}', [AdminController::class, 'edit'])->name('admin.edit');
     Route::put('/admin/update/{table}/{id}', [AdminController::class, 'update'])->name('admin.update');
+    Route::delete('/admin/dashboard/{table}/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
+
 
     Route::get('/admin/upload-image/{id}', [AdminController::class, 'showUploadImage'])->name('admin.upload-image');
     Route::post('/admin/upload-image/{id}', [AdminController::class, 'uploadImage'])->name('admin.upload-image.post');

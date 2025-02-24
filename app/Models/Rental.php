@@ -10,7 +10,7 @@ class Rental extends Model
     use HasFactory;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
-    protected $fillable = ['customer_id', 'book_id', 'rental_date', 'due_date','status', 'return_date'];
+    protected $fillable = ['customer_id', 'book_id', 'rental_date', 'due_date','status', 'return_date','amount'];
 
     // ความสัมพันธ์: การยืมหนังสือหนึ่งเล่มจะเชื่อมโยงกับลูกค้าหนึ่งคน
     public function customer()

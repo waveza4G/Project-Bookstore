@@ -20,7 +20,7 @@ class BookSeeder extends Seeder
     public function run(): void
     {
 
-        Payment::factory(70)->create();
+        Payment::factory(30)->create();
 
     }
 }
