@@ -14,7 +14,7 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
             { label: 'รหัสลูกค้า', key: 'customer_id' },
             { label: 'ชื่อลูกค้า', key: 'customer.name' },
             { label: 'นามสกุล', key: 'customer.lastname' },
-            { label: 'สถานะลูกค้า', key: 'customer.status' }, // ✅ เพิ่มสถานะลูกค้า
+            { label: 'สถานะลูกค้า', key: 'status' }, // ✅ เพิ่มสถานะลูกค้า
             { label: 'รหัสหนังสือ', key: 'book_id' },
             { label: 'วันที่ยืมหนังสือ', key: 'rental_date' },
             { label: 'วันที่ครบกำหนด', key: 'due_date' },
@@ -47,8 +47,6 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
             { label: 'Email', key: 'email' },
             { label: 'Phone', key: 'phone' },
             { label: 'Lastname', key: 'lastname' },
-            { label: 'Status', key: 'status' },
-            { label: 'Penalty', key: 'penalty' },
             { label: 'จำนวนหนังสือที่ยืม', key: 'book_count' },
             { label: 'วันที่ยืมล่าสุด', key: 'rentals.rental_date' },
             { label: 'สถานะการชำระเงิน', key: 'payments.status' },
@@ -60,6 +58,7 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
             { label: 'ยอดชำระเงิน', key: 'payment_amount' },
             { label: 'สถานะการชำระเงิน', key: 'status' },
             { label: 'วันที่ชำระเงิน', key: 'payment_date' },
+            { label: 'Penalty', key: 'penalty' },
             { label: 'รหัสลูกค้า', key: 'customer_id' },
             { label: 'รหัสหนังสือ', key: 'book_id' },
             { label: 'รหัสการยืม', key: 'rental_id' },

@@ -12,7 +12,7 @@ class Customer extends Authenticatable
     use HasFactory, HasApiTokens;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
-    protected $fillable = ['name', 'lastname', 'username', 'phone', 'email', 'password', 'status', 'penalty', 'book_count'];
+    protected $fillable = ['name', 'lastname', 'username', 'phone', 'email', 'password',   'book_count'];
 
     public function rentals()
     {

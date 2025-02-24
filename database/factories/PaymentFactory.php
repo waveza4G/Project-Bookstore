@@ -26,6 +26,7 @@ class PaymentFactory extends Factory
             'payment_amount' => $this->faker->randomFloat(2, 10, 1000),
             'status' => $this->faker->randomElement(['on_time', 'late']),
             'payment_date' => $this->faker->date(), // ใช้วันที่ที่เกี่ยวข้อง
+            'penalty' => $this->faker->randomFloat(2, 0, 100), // ถูกต้อง
         ];
     }
 }

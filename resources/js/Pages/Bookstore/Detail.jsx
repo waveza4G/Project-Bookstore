@@ -1,64 +1,154 @@
-import React from "react";
-import { usePage } from "@inertiajs/react";
-import Navbar from "./Navbar"; // เรียกใช้ Navbar
+import React, { useState, useEffect } from "react";
+import { usePage, Link } from "@inertiajs/react";
+import { Inertia } from "@inertiajs/inertia";
+import Navbar from "./Navbar";
 
 const Detail = () => {
-  const { book } = usePage().props;
+  const { book, auth, existingRental } = usePage().props;
+
+  // อัตราค่าเช่าตามจำนวนวันที่เช่า (1-7 วัน)
+  const rentalRates = {
+    1: 0.04, 2: 0.08, 3: 0.12, 4: 0.16,
+    5: 0.20, 6: 0.24, 7: 0.30
+  };
+
+  // ฟังก์ชันคำนวณราคา
+  const calculatePrice = (days) => {
+    const rate = rentalRates[days] || rentalRates[7]; // ใช้อัตราของ 7 วันถ้าไม่ตรงกับ 1-6 วัน
+    return Math.ceil(book.price * rate); // คำนวณราคาและปัดเศษขึ้น
+  };
+
+  // เริ่มต้นค่า rentalPrice และ data
+  const [rentalPrice, setRentalPrice] = useState(() => calculatePrice(1)); // เริ่มต้นที่ 1 วัน
+  const [data, setData] = useState({
+    rental_days: 1, // กำหนดเริ่มต้นเป็น 1 วัน
+  });
+
+  // ฟังก์ชัน handleChange สำหรับการเปลี่ยนแปลงจำนวนวันเช่า
+  const handleDaysChange = (e) => {
+    const days = parseInt(e.target.value, 10);
+    setData({ ...data, rental_days: days });
+    setRentalPrice(calculatePrice(days)); // คำนวณราคาหลังจากการเลือกจำนวนวัน
+  };
+
+  // ฟังก์ชันคลิกเช่าหนังสือ
+  const handleRentalClick = () => {
+    if (!auth || !auth.customer) {
+      console.error("User is not authenticated or customer data is missing");
+      return;
+    }
+
+    const customerId = auth.customer.id; // กำหนด customerId
+    const bookId = book.id; // กำหนด bookId
+    const rentalDays = data.rental_days; // กำหนด rentalDays
+    const rentalAmount = rentalPrice; // กำหนดราคาค่าเช่า
+
+    // ใช้ Inertia.post แทน Inertia.visit
+    Inertia.post('/rental/complete', {
+      amount: rentalAmount,
+      bookId: bookId,
+      rental_days: rentalDays
+    })
+    .then(() => {
+      // หากการเช่าสำเร็จ
+      console.log("การเช่าเสร็จสมบูรณ์");
+    })
+    .catch((error) => {
+      console.error("Error during rental: ", error);
+    });
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      {/* Navbar */}
       <Navbar />
 
       <div className="container mx-auto p-6">
-        {/* กล่องหลัก */}
-        <div className="flex flex-col md:flex-row bg-white shadow-2xl rounded-lg p-6">
-          {/* รูปภาพหนังสือ */}
-          <div className="w-full md:w-1/4 flex justify-center items-center">
+        <div className="flex flex-col md:flex-row p-6">
+          <div className="w-full md:w-1/3 flex justify-center items-center mb-6 md:mb-0">
             <img
               src={`/storage/${book.image}`}
               alt={book.book_name}
-              className="w-150 h-auto object-cover rounded-lg shadow-lg"
+              className="w-full h-auto max-w-[400px] object-cover rounded-lg shadow-lg"
             />
           </div>
 
-          {/* รายละเอียดหนังสือ */}
-          <div className="w-full md:w-3/4 md:pl-8 mt-6 md:mt-0">
-            <h2 className="text-2xl font-bold text-gray-800">{book.book_name}</h2>
-            <p className="text-md text-gray-700 mt-1">{book.author || "ไม่ระบุผู้แต่ง"}</p>
-            <p className="text-gray-500 text-sm mt-3">{book.description || "ไม่มีคำอธิบาย"}</p>
+          <div className="w-full md:w-2/3 md:pl-8 mt-6 md:mt-0">
+            <h2 className="text-3xl font-bold text-gray-800">{book.book_name}</h2>
+            <p className="text-lg text-gray-700 mt-1">{book.author || "ไม่ระบุผู้แต่ง"}</p>
+            <p className="text-gray-500 text-xl mt-3">{book.description || "ไม่มีคำอธิบาย"}</p>
 
-            {/* เพิ่มข้อมูลสำนักพิมพ์ และจำนวนคงเหลือ */}
-            <p className="text-md text-gray-700 mt-3">{book.publisher || "ไม่ระบุสำนักพิมพ์"}</p>
-            <p className="text-md text-gray-700 mt-3">จำนวนคงเหลือ: {book.remaining_quantity || "ไม่ระบุ"}</p>
+            <p className="text-lg text-gray-700 mt-3">{book.publisher || "ไม่ระบุสำนักพิมพ์"}</p>
+            <p className="text-lg text-gray-700 mt-3">จำนวนคงเหลือ: {book.remaining_quantity || "ไม่ระบุ"}</p>
 
-            {/* เส้นแบ่ง */}
-            <div className="border-t border-gray-300 mt-4 pt-4">
-              {/* ราคา */}
-              <span className="text-2xl font-bold text-[#BA7D66]">
+            <div className="mt-4 pt-4">
+              <span className="text-3xl font-bold text-[#BA7D66]">
                 ฿{parseFloat(book.price).toFixed(2)}
               </span>
             </div>
 
-            {/* ปุ่มเช่า */}
-            <div className="mt-6 flex flex-col items-start space-y-4">
+            <p className="mt-2">
+              <strong>ราคาค่าเช่า:</strong> {rentalPrice} บาท
+            </p>
+
+            {(auth.customer || auth.admin) ? (
+              existingRental ? (
+                <div>
+                  <p className="text-red-500 font-bold mt-4">📌 คุณเช่าหนังสือเล่มนี้แล้ว</p>
+
+                  {existingRental.status === "-" && (
+                    <div>
+                      <p className="text-yellow-500">⚠️ การเช่ายังรอการชำระเงิน</p>
+                      <Link
+                        href={`/payments/create?rental_id=${existingRental.id}`}
+                        className="bg-orange-500 text-white px-4 py-2 rounded mt-4 inline-block"
+                      >
+                        ไปที่หน้าชำระเงิน
+                      </Link>
+                    </div>
+                  )}
+
+                  {existingRental.status === "borrowed" && (
+                    <p className="text-green-500">✅ การเช่าได้รับการชำระเงินแล้ว</p>
+                  )}
+                </div>
+              ) : (
+                // ถ้ายังไม่ได้เช่า
+                <div className="mt-4">
+                  <label>เลือกจำนวนวันที่ต้องการเช่า (1-7 วัน):</label>
+                  <input
+                    type="number"
+                    name="rental_days"
+                    min="1"
+                    max="7"
+                    value={data.rental_days}
+                    onChange={handleDaysChange}
+                    required
+                    className="border p-2 ml-2"
+                  />
+                </div>
+              )
+            ) : (
+              <p className="text-red-500 mt-4">⚠️ คุณต้องเข้าสู่ระบบก่อนทำการเช่าหนังสือ</p>
+            )}
+
+            <div className="mt-6 flex justify-between">
               <button
-                className="bg-[#BA7D66] hover:bg-[#9a5d4c] hover:bg-opacity-80 text-white font-semibold py-3 px-8 rounded-full shadow-md transition duration-300 transform hover:scale-105"
+                onClick={() => window.history.back()}
+                className="bg-[#BA7D66] hover:bg-[#9a5d4c] hover:bg-opacity-80 text-white font-semibold py-4 px-12 w-1/4 rounded-full text-2xl"
               >
-                เช่า
+                กลับ
               </button>
+
+              {(auth.customer || auth.admin) && !existingRental && (
+                <button
+                  onClick={handleRentalClick}
+                  className="bg-[#BA7D66] hover:bg-[#9a5d4c] hover:bg-opacity-80 text-white font-semibold py-4 px-12 w-1/4 rounded-full text-2xl"
+                >
+                  เช่าหนังสือ
+                </button>
+              )}
             </div>
           </div>
-        </div>
-
-        {/* ปุ่มกลับ */}
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => window.history.back()}
-            className="bg-[#BA7D66] hover:bg-[#9a5d4c] hover:bg-opacity-80 text-white font-semibold py-3 px-8 rounded-full shadow-md transition duration-300 transform hover:scale-105"
-          >
-            กลับ
-          </button>
         </div>
       </div>
     </div>

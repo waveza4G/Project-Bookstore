@@ -32,33 +32,50 @@ const Books = () => {
 
       {/* Scroll แนวนอน */}
       <div className="relative overflow-hidden">
-        <div ref={scrollRef} className="overflow-x-auto py-3 scrollbar-hide">
+        <div
+          ref={scrollRef}
+          className="overflow-x-auto py-3 whitespace-nowrap"
+          style={{
+            scrollbarWidth: "none", // ซ่อน scrollbar ใน Firefox
+            msOverflowStyle: "none", // ซ่อน scrollbar ใน IE และ Edge
+          }}
+        >
+          {/* ซ่อน scrollbar ใน Chrome และ Safari */}
+          <style>
+            {`
+              /* สำหรับ Chrome และ Safari */
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}
+          </style>
+
           <div className="flex space-x-4">
             {books.length > 0 ? (
               books.map((book) => (
-                <div key={book.id} className="w-44 min-w-[180px] flex flex-col justify-between">
+                <div key={book.id} className="w-60 min-w-[240px] flex flex-col justify-between">
                   {/* รูปภาพหนังสือ */}
                   <Link href={route('books.show', book.id)} className="text-[#BA7D66] text-sm font-semibold mt-2">
                     <img
                       src={`/storage/${book.image}`}
                       alt={book.book_name}
-                      className="w-36 h-48 object-cover rounded-lg shadow-md"
+                      className="w-48 h-64 object-cover rounded-lg shadow-md"
                     />
                   </Link>
 
                   {/* รายละเอียดหนังสือ */}
-                  <div className="w-36 mt-2 text-left flex-grow">
-                    <h3 className="text-sm font-bold text-gray-900 block">
+                  <div className="w-48 mt-2 text-left flex-grow">
+                    <h3 className="text-lg font-semibold text-gray-900 block">
                       {limitText(book.book_name, 30)} {/* จำกัดความยาวของชื่อหนังสือ */}
                     </h3>
                     <p className="text-xs text-gray-500 truncate">{book.author || "ไม่ระบุผู้แต่ง"}</p>
                     <p className="text-xs text-gray-500 truncate">จำนวนคงเหลือ: {book.remaining_quantity || "ไม่ระบุ"}</p>
                   </div>
 
-                  <div className="text-[#BA7D66] font-bold text-lg ">
+                  {/* ขยายขนาดราคา */}
+                  <div className="text-[#BA7D66] font-bold text-xl">
                     ฿{parseFloat(book.price).toFixed(2)}
                   </div>
-
                 </div>
               ))
             ) : (

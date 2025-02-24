@@ -24,6 +24,8 @@ class RentalFactory extends Factory
             'rental_date' => $this->faker->date(),
             'due_date' => $this->faker->date(),
             'return_date' => $this->faker->optional()->date(), // return_date สามารถเป็น null ได้
+            'status' => $this->faker->randomElement(['borrowed', '-']),
+
         ];
     }
 }

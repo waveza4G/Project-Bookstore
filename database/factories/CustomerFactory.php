@@ -24,8 +24,7 @@ class CustomerFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'password' => bcrypt('password'), // สุ่มรหัสผ่านและเข้ารหัส
             'book_count' => $this->faker->numberBetween(0, 10),
-            'status' => $this->faker->randomElement(['borrowed', '-']),
-            'penalty' => $this->faker->randomFloat(2, 0, 100), // ถูกต้อง
+
         ];
     }
 }

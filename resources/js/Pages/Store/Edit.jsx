@@ -60,6 +60,7 @@
 
                                 <label>Return Date:</label>
                                 <input type="date" name="return_date" value={data.return_date || ''} onChange={handleChange} className="border p-2 w-full" />
+
                             </>
                         )}
 

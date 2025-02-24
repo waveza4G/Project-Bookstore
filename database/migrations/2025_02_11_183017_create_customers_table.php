@@ -20,8 +20,6 @@ return new class extends Migration
             $table->string('email')->unique();  // ห้ามอีเมลซ้ำ
             $table->string('password');
             $table->integer('book_count')->default(0);  // จำนวนหนังสือที่ยืม (เริ่มต้นเป็น 0)
-            $table->enum('status', ['borrowed', '-'])->default('-');
-            $table->decimal('penalty', 8, 2)->default(0);  // ค่าปรับ (เริ่มต้นเป็น 0 หากยังไม่ได้ค่าปรับ)
             $table->timestamps();
         });
     }

@@ -3,13 +3,14 @@ import { usePage, Link } from "@inertiajs/react";
 import Sidebar from "./Sidebar"; // เรียกใช้ Sidebar
 
 const Showcategory = () => {
-  const { books = [], categoryName } = usePage().props; // รับข้อมูลจาก backend
+  const { books = [], categoryName , groupName } = usePage().props; // รับข้อมูลจาก backend
 
   // กรองหนังสือตาม categoryName ที่ได้รับมา
   const filteredBooks = categoryName
-    ? books.filter(book => book.category_name === categoryName) // กรองตาม categoryName ที่ส่งมา
-    : books;  // ถ้าไม่มี categoryName ให้แสดงหนังสือทั้งหมด
-
+    ? books.filter(book => book.category_name === categoryName)
+    : groupName
+    ? books.filter(book => book.group_name === groupName)
+    : books;
   // ฟังก์ชัน limitText สำหรับจำกัดความยาวของข้อความ
   const limitText = (text, limit) => {
     if (!text) return "";
@@ -25,7 +26,7 @@ const Showcategory = () => {
       <div className="w-full md:w-4/5 ml-4">
         {/* แสดงชื่อหมวดหมู่ */}
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          {categoryName || "หนังสือทั้งหมด"}
+          {categoryName || groupName ||"หนังสือทั้งหมด"}
         </h1>
 
         {/* แสดงรายการหนังสือ */}

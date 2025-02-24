@@ -42,7 +42,18 @@ class BookController extends Controller
                 )
                 ->where('groups.group_name', $groupName) // กรองตาม groupName
                 ->get();
+        } else {
+            // ถ้าไม่มีทั้ง categoryName และ groupName, ให้แสดงหนังสือทั้งหมด
+            $books = DB::table('books')
+                ->join('categories', 'books.category_id', '=', 'categories.id')
+                ->select(
+                    'books.id', 'books.book_name', 'books.image', 'books.price', 'books.author',
+                    'books.description', 'books.publisher', 'books.remaining_quantity',
+                    'categories.category_name'
+                )
+                ->get();
         }
+
         // ส่งข้อมูลไปยัง view หรือ inertia
         return inertia('Bookstore/Showcategory', [
             'books' => $books,
@@ -51,6 +62,7 @@ class BookController extends Controller
         ]);
     }
 
+
     public function show(Book $book)
     {
         // ดึงข้อมูลหนังสือที่เลือกมาแสดง
@@ -58,9 +70,6 @@ class BookController extends Controller
             'book' => $book
         ]);
     }
-
-
-
 
 
     public function create()

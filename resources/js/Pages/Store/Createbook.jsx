@@ -1,6 +1,5 @@
 import { useForm, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import FlashMessage from '@/Components/FlashMessage';
 
 const Createbook = ({ categories, groups }) => {
     const { data, setData, post, errors, reset } = useForm({
@@ -16,8 +15,6 @@ const Createbook = ({ categories, groups }) => {
     });
 
     const [preview, setPreview] = useState(null);
-    const [showFlash, setShowFlash] = useState(false);
-    const { flash } = usePage().props;
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -54,11 +51,6 @@ const Createbook = ({ categories, groups }) => {
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-10 max-w-3xl w-full">
-                {showFlash && (
-                    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-72">
-                        <FlashMessage flash={{ success: 'Book added successfully! Redirecting...' }} />
-                    </div>
-                )}
                 <h1 className="text-3xl font-extrabold text-gray-900 mb-6 text-center">Add New Book</h1>
 
                 <form onSubmit={handleSubmit} encType="multipart/form-data" className="grid grid-cols-1 md:grid-cols-2 gap-6">

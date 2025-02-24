@@ -13,7 +13,7 @@ const Navbar = () => {
 
   return (
     <div className="bg-[#BA7D66] shadow-md py-4">
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="container mx-auto px-4 flex items-center justify-between">
         <div className="text-white text-2xl font-semibold">
           <a href="/" className="hover:text-gray-300 transition duration-300">
             MyApp

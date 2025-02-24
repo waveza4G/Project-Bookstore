@@ -10,7 +10,7 @@ class Payment extends Model
     use HasFactory;
 
     // กำหนดว่าคอลัมน์ไหนบ้างที่สามารถกรอกข้อมูลได้
-    protected $fillable = ['customer_id', 'book_id', 'rental_id', 'payment_amount', 'status', 'payment_date'];
+    protected $fillable = ['customer_id', 'book_id', 'rental_id', 'payment_amount','penalty', 'status', 'payment_date'];
 
     // ความสัมพันธ์: การชำระเงินเชื่อมโยงกับลูกค้า
     public function customer()

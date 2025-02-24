@@ -26,10 +26,10 @@ class AdminController extends Controller
 
         // รายชื่อคอลัมน์ที่สามารถใช้เรียงได้ในแต่ละตาราง
         $sortableColumns = [
-            1 => ['id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date', 'customer.name', 'customer.lastname','customer.status'],
-            2 => ['id', 'book_name','category_id','category.category_name','group_id','group.group_name', 'quantity', 'remaining_quantity','price', 'publisher', 'author', 'description','image','sold_quantity'],
-            3 => ['id', 'name', 'username', 'email', 'phone', 'lastname', 'status', 'penalty', 'book_count','rentals.rental_date','payments.status'],
-            4 => ['id', 'payment_amount', 'status', 'payment_date','customer_id','book_id','rental_id'],
+            1 => ['id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date', 'customer.name', 'customer.lastname','status','image'],
+            2 => ['id', 'book_name','category_id','category.category_name','group_id','group.group_name', 'quantity', 'remaining_quantity','price', 'publisher', 'author', 'description','sold_quantity'],
+            3 => ['id', 'name', 'username', 'email', 'phone', 'lastname',  'book_count','rentals.rental_date','payments.status',],
+            4 => ['id', 'payment_amount', 'status', 'payment_date','penalty','customer_id','customer.name','book_id','book.book_name','rentals.rental_date','rental_id'],
             5 => ['id', 'username', 'email']
         ];
 
@@ -40,7 +40,7 @@ class AdminController extends Controller
 
         // คำสั่งดึงข้อมูลตามตารางที่เลือก
         if ($selectedTable == 1) {
-            $table = Rental::selectRaw('rentals.*, customers.name as customer_name, customers.lastname as customer_lastname, customers.status as customer_status')
+            $table = Rental::selectRaw('rentals.*, customers.name as customer_name, customers.lastname as customer_lastname')
                 ->join('customers', 'rentals.customer_id', '=', 'customers.id')
                 ->with('book', 'customer')
                 ->when($query, function ($q) use ($query) {
@@ -50,13 +50,12 @@ class AdminController extends Controller
                         ->orWhere('rentals.return_date', 'like', "%{$query}%")
                         ->orWhere('customers.name', 'like', "%{$query}%")
                         ->orWhere('customers.lastname', 'like', "%{$query}%")
-                        ->orWhere('customers.status', 'like', "%{$query}%");
+                        ->orWhere('rentals.status', 'like', "%{$query}%");
                 })
                 ->orderBy(
                     match ($sortBy) {
                         'customer.name' => 'customer_name',
                         'customer.lastname' => 'customer_lastname',
-                        'customer.status' => 'customer_status',
                         default => "rentals.{$sortBy}"
                     },
                     $sortDirection
@@ -105,8 +104,6 @@ class AdminController extends Controller
                     ->orWhere('email', 'like', "%{$query}%")
                     ->orWhere('phone', 'like', "%{$query}%")
                     ->orWhere('lastname', 'like', "%{$query}%")
-                    ->orWhere('status', 'like', "%{$query}%")
-                    ->orWhere('penalty', 'like', "%{$query}%")
                     ->orWhere('book_count', 'like', "%{$query}%")
                     ->orWhere('id', 'like', "%{$query}%");
             });
@@ -122,19 +119,37 @@ class AdminController extends Controller
 
             $table = $table->paginate(10);
         }
-
         elseif ($selectedTable == 4) {
-            $table = Payment::with('customer', 'book', 'rental')
+            $table = Payment::selectRaw('payments.*,
+                    customers.name as customer_name,
+                    books.book_name,
+                    rentals.rental_date')
+                ->leftJoin('customers', 'payments.customer_id', '=', 'customers.id')
+                ->leftJoin('books', 'payments.book_id', '=', 'books.id')
+                ->leftJoin('rentals', 'payments.rental_id', '=', 'rentals.id')
+                ->with('customer', 'book', 'rental') // แทนการใช้ selectRaw กับ relation
                 ->when($query, function ($q) use ($query) {
-                    return $q->where('payment_amount', 'like', "%{$query}%")
-                            ->orWhere('status', 'like', "%{$query}%")
-                            ->orWhere('payment_date', 'like', "%{$query}%")
-                            ->orWhere('id', 'like', "%{$query}%")
-                            ->orWhere('customer_id', 'like', "%{$query}%")
-                            ->orWhere('book_id', 'like', "%{$query}%")
-                            ->orWhere('rental_id', 'like', "%{$query}%");
+                    return $q->where('payments.payment_amount', 'like', "%{$query}%")
+                            ->orWhere('payments.status', 'like', "%{$query}%")
+                            ->orWhere('payments.payment_date', 'like', "%{$query}%")
+                            ->orWhere('payments.id', 'like', "%{$query}%")
+                            ->orWhere('payments.penalty', 'like', "%{$query}%")
+                            ->orWhere('payments.customer_id', 'like', "%{$query}%")
+                            ->orWhere('customers.name', 'like', "%{$query}%")
+                            ->orWhere('payments.book_id', 'like', "%{$query}%")
+                            ->orwhere('books.book_name', 'like', "%{$query}%")
+                            ->orWhere('payments.rental_id', 'like', "%{$query}%")
+                            ->orWhere('rentals.rental_date', 'like', "%{$query}%");
                 })
-                ->orderBy("payments.{$sortBy}", $sortDirection)
+                ->orderBy(
+                    match ($sortBy) {
+                        'customer.name' => 'customers.name',
+                        'book.book_name' => 'books.book_name',
+                        'rental.rental_date' => 'rentals.rental_date',
+                        default => "payments.{$sortBy}",
+                    },
+                    $sortDirection
+                )
                 ->paginate(10);
         }
 
@@ -174,11 +189,11 @@ class AdminController extends Controller
     public function edit($table, $id)
     {
         if ($table == 1) {
-            $record = Rental::select('id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date')
+            $record = Rental::select('id', 'customer_id', 'book_id', 'rental_date', 'due_date','status',  'return_date')
                 ->with('customer:id,name,lastname,status', 'book:id,book_name')
                 ->findOrFail($id);
         } elseif ($table == 2) {
-            $record = Book::select('id', 'book_name', 'category_id', 'group_id', 'quantity', 'remaining_quantity', 'sold_quantity', 'price', 'publisher', 'author', 'description', 'image')
+            $record = Book::select('id', 'book_name', 'category_id', 'group_id', 'quantity', 'remaining_quantity', 'sold_quantity', 'price', 'publisher', 'author', 'description')
                 ->with('category:id,category_name', 'group:id,group_name')
                 ->findOrFail($id);
 
@@ -186,10 +201,10 @@ class AdminController extends Controller
             $categories = Category::select('id', 'category_name')->get();
             $groups = Group::select('id', 'group_name')->get();
         } elseif ($table == 3) {
-            $record = Customer::select('id', 'name', 'lastname', 'username', 'email', 'phone', 'status', 'penalty', 'book_count')
+            $record = Customer::select('id', 'name', 'lastname', 'username', 'email', 'phone', 'book_count')
                 ->findOrFail($id);
         } elseif ($table == 4) {
-            $record = Payment::select('id', 'payment_amount', 'status', 'payment_date', 'customer_id', 'book_id', 'rental_id')
+            $record = Payment::select('id', 'payment_amount', 'status', 'payment_date', 'penalty', 'customer_id', 'book_id', 'rental_id')
                 ->with('customer:id,name', 'book:id,book_name', 'rental:id,rental_date')
                 ->findOrFail($id);
         } elseif ($table == 5) {
@@ -212,6 +227,7 @@ class AdminController extends Controller
                 'rental_date' => 'nullable|date_format:Y-m-d',
                 'due_date' => 'nullable|date_format:Y-m-d',
                 'return_date' => 'nullable|date_format:Y-m-d',
+                'status' => 'required|string',
             ]);
             Rental::where('id', $id)->update($validated);
         } elseif ($table == 2) {
@@ -224,7 +240,6 @@ class AdminController extends Controller
                 'publisher' => 'nullable|string|max:255',
                 'author' => 'required|string|max:255',
                 'description' => 'required|string',
-
             ]);
 
             Book::where('id', $id)->update($validated);
@@ -237,14 +252,16 @@ class AdminController extends Controller
                 'username' => 'required|string|max:255',
                 'email' => 'required|string|email',
                 'phone' => 'nullable|string|max:20',
-                'status' => 'required|string',
+
             ]);
             Customer::where('id', $id)->update($validated);
+
         } elseif ($table == 4) {
             $validated = $request->validate([
                 'payment_amount' => 'required|numeric|min:0',
                 'status' => 'required|string',
                 'payment_date' => 'nullable|date_format:Y-m-d',
+                'penalty'=> 'required|numeric|min:0'
             ]);
             Payment::where('id', $id)->update($validated);
         } elseif ($table == 5) {
@@ -300,8 +317,6 @@ class AdminController extends Controller
         }
     }
 
-
-
     public function showUploadImage($id)
     {
         $book = Book::findOrFail($id);
@@ -312,6 +327,7 @@ class AdminController extends Controller
     public function uploadImage(Request $request, $id)
     {
         $book = Book::findOrFail($id);
+
 
         $validated = $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -330,5 +346,21 @@ class AdminController extends Controller
 
         return redirect()->route('admin.edit', ['table' => 2, 'id' => $id])->with('success', 'อัปโหลดรูปภาพสำเร็จ!');
     }
+
+    // RentalController.php
+// RentalController.php
+
+public function showUploadQRImage($id)
+{
+    $rental = Rental::findOrFail($id);
+    return Inertia::render('Store/UpdateQR', [
+        'rental' => $rental, // ส่งข้อมูล rental ไปยังหน้า UpdateQR
+    ]);
+}
+
+// RentalController.php
+
+// RentalController.php
+
 
 }
