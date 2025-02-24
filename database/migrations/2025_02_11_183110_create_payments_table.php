@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('book_id')->constrained('books')->onDelete('cascade');  // รหัสหนังสือ (เชื่อมโยงกับตาราง books)
             $table->foreignId('rental_id')->constrained('rentals')->onDelete('cascade');  // รหัสการเช่า (เชื่อมโยงกับตาราง rentals)
             $table->decimal('payment_amount', 8, 2);  // จำนวนเงินที่ชำระ
-            $table->enum('status', ['paid', '-'])->default('-')->nullable();  // สถานะการชำระเงิน
+            $table->enum('status', ['return', '-'])->default('-')->nullable();  // สถานะการชำระเงิน
             $table->decimal('penalty', 8, 2)->default(0);  // ค่าปรับ (เริ่มต้นเป็น 0 หากยังไม่ได้ค่าปรับ)
             $table->timestamp('payment_date')->nullable();  // วันที่ชำระเงิน (สามารถเก็บเป็น NULL ได้ในกรณีที่ยังไม่ชำระ)
             $table->timestamps();  // คอลัมน์ created_at และ updated_at

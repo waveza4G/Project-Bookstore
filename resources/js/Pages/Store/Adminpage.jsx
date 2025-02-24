@@ -6,8 +6,6 @@ import Navbar from '../Bookstore/Navbar';
 export default function Adminpage({ table, tableNo, sortBy, sortDirection, query }) {
     const [selectedTable, setSelectedTable] = useState(tableNo || 1);
     const [search, setSearch] = useState(query || '');
-    const [editingRow, setEditingRow] = useState(null);
-    const [editedData, setEditedData] = useState({});
 
     const columns = {
         1: [
@@ -23,6 +21,58 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
             { label: 'จำนวนเงินที่ต้องชำระ', key: 'amount' }, // เพิ่มคอลัมน์ 'amount'
             { label: 'Option', key: 'option' },
             { label: 'Payment', key: 'Payment' }, // คอลัมน์ Payment
+        ],
+        2: [
+            { label: 'ID', key: 'id' },
+            { label: 'Book Name', key: 'book_name' },
+            { label: 'Category ID', key: 'category_id' },
+            { label: 'Category Name', key: 'category.category_name' }, // ✅ เพิ่ม category_name ให้ตรงกับ DB
+            { label: 'Group ID', key: 'group_id' },
+            { label: 'Group Name', key: 'group.group_name' }, // ✅ เพิ่ม group_name ให้ตรงกับ DB
+            { label: 'Quantity', key: 'quantity' },
+            { label: 'Remaining Quantity', key: 'remaining_quantity' },
+            { label: 'Sold Quantity', key: 'sold_quantity' },
+            { label: 'Price', key: 'price' },
+            { label: 'Publisher', key: 'publisher' },
+            { label: 'Author', key: 'author' },
+            { label: 'Description', key: 'description' },
+            { label: 'Image', key: 'image' },
+            { label: 'Option', key: 'option' },
+        ],
+
+        3: [
+            { label: 'ID', key: 'id' },
+            { label: 'ชื่อ', key: 'name' },
+            { label: 'Username', key: 'username' },
+            { label: 'Email', key: 'email' },
+            { label: 'Phone', key: 'phone' },
+            { label: 'Lastname', key: 'lastname' },
+            { label: 'จำนวนหนังสือที่ยืม', key: 'book_count' },
+            { label: 'Option', key: 'option' },
+        ],
+
+            4: [
+                { label: 'ID', key: 'id' },
+                { label: 'ยอดชำระเงิน', key: 'payment_amount' },
+                { label: 'สถานะการชำระเงิน', key: 'status' },
+                { label: 'วันที่ชำระเงิน', key: 'payment_date' },
+                { label: 'Penalty', key: 'penalty' },
+                { label: 'รหัสลูกค้า', key: 'customer_id' },
+                { label: 'ชื่อลูกค้า', key: 'customer.name' },
+                { label: 'รหัสหนังสือ', key: 'book_id' },
+                { label: 'ชื่อหนังสือ', key: 'book.book_name' },  // เพิ่มคอลัมน์ชื่อหนังสือ
+                { label: 'รหัสการยืม', key: 'rental_id' },
+                { label: 'วันที่ชำระ', key: 'rental.return_date' }, // เพิ่มคอลัมน์วันที่ชำระ
+                { label: 'Option', key: 'option' },
+            ],
+
+
+
+        5: [
+            { label: 'ID', key: 'id' },
+            { label: 'Username', key: 'username' },
+            { label: 'Email', key: 'email' },
+            { label: 'Option', key: 'option' },
         ],
     };
 
@@ -185,14 +235,22 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
                                                     // เพิ่มเงื่อนไขการตรวจสอบสถานะ 'borrowed'
                                                     row.status === 'borrowed' ? (
                                                         <button
-                                                            onClick={() => router.visit(`/admin/return/${row.id}`)} // ปรับ URL ไปหน้าการคืนหนังสือ
-                                                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                                                        >
-                                                            ยืนยันการคืน
-                                                        </button>
+                                                        onClick={() => {
+                                                            if (confirm('Are you sure you want to return this book?')) {
+                                                                router.post('/rental/returnbook', {
+                                                                    rental_id: row.id,  // ส่ง rental_id เพื่อให้ Controller ใช้
+                                                                });
+                                                            }
+                                                        }}
+                                                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                                                    >
+                                                        ยืนยันการคืน
+                                                    </button>
+
                                                     ) : (
                                                         <button
                                                             onClick={() => {
+                                                                if (confirm('Are you sure you want to payment this book?')) {
                                                                 const rentalId = row.id; // รหัสการเช่า
                                                                 const paymentAmount = row.amount; // จำนวนเงินที่ชำระ (จากจำนวนเงินที่ต้องชำระ)
                                                                 Inertia.post('/rental/complete', {
@@ -200,6 +258,7 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
                                                                     payment_amount: paymentAmount,  // ส่งจำนวนเงินที่ชำระไป
                                                                     book_id: row.book_id,  // ส่งรหัสหนังสือ
                                                                 });
+                                                            }
                                                             }}
                                                             className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                                                         >

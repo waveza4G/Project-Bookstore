@@ -24,7 +24,7 @@ class PaymentFactory extends Factory
             'book_id' => Book::factory(),
             'rental_id' => Rental::factory(),
             'payment_amount' => $this->faker->randomFloat(2, 10, 1000),
-            'status' => $this->faker->randomElement(['paid', '-']),  // สถานะการชำระเงิน: 'paid' หรือ 'unpaid
+            'status' => $this->faker->randomElement(['return', '-']),  // สถานะการชำระเงิน: 'paid' หรือ 'unpaid
             'payment_date' => $this->faker->date(), // ใช้วันที่ที่เกี่ยวข้อง
             'penalty' => $this->faker->randomFloat(2, 0, 100), // ถูกต้อง
         ];

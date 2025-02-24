@@ -38,6 +38,7 @@ Route::middleware('guest')->group(function () {
 // Route::get('/qrcode/{customerId}', [RentalController::class, 'show'])->name('qrcode.show');
 Route::post('/rental', [RentalController::class, 'rental'])->name('rental.wait');
 Route::post('/rental/complete', [AdminController::class, 'complete'])->name('rental.complete');
+Route::post('/rental/returnbook', [AdminController::class, 'returnbook'])->name('rental.returnbook');
 
 Route::get('/rental/{customerId}/book/{bookId}/days/{rentalDays}', [RentalController::class, 'create'])->name('rental.create');
 Route::post('/payment/confirm', [RentalController::class, 'confirmPayment'])->name('payment.confirm');

@@ -27,10 +27,10 @@ class AdminController extends Controller
 
         // รายชื่อคอลัมน์ที่สามารถใช้เรียงได้ในแต่ละตาราง
         $sortableColumns = [
-            1 => ['id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date', 'customer.name', 'customer.lastname','status','amount'],
-            2 => ['id', 'book_name','category_id','category.category_name','group_id','group.group_name', 'quantity', 'remaining_quantity','price', 'publisher', 'author', 'description','sold_quantity'],
-            3 => ['id', 'name', 'username', 'email', 'phone', 'lastname',  'book_count','rentals.rental_date','payments.status',],
-            4 => ['id', 'payment_amount', 'status', 'payment_date','penalty','customer_id','customer.name','book_id','book.book_name','rentals.rental_date','rental_id'],
+            1 => ['id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date', 'customer.name', 'customer.lastname', 'status', 'amount'],
+            2 => ['id', 'book_name', 'category_id', 'category.category_name', 'group_id', 'group.group_name', 'quantity', 'remaining_quantity', 'price', 'publisher', 'author', 'description', 'sold_quantity'],
+            3 => ['id', 'name', 'username', 'email', 'phone', 'lastname', 'book_count'],
+            4 => ['id', 'payment_amount', 'status', 'payment_date', 'penalty', 'customer_id', 'customer.name', 'book_id', 'book.book_name', 'rentals.rental_date', 'rental_id'],
             5 => ['id', 'username', 'email']
         ];
 
@@ -41,9 +41,10 @@ class AdminController extends Controller
 
         // คำสั่งดึงข้อมูลตามตารางที่เลือก
         if ($selectedTable == 1) {
-            $table = Rental::selectRaw('rentals.*, customers.name as customer_name, customers.lastname as customer_lastname, rentals.amount') // เพิ่ม 'amount'
-            ->join('customers', 'rentals.customer_id', '=', 'customers.id')
-                ->with('book', 'customer')
+            // เปลี่ยนการดึงข้อมูล status จาก customers ไปที่ rentals
+            $table = Rental::selectRaw('rentals.*, customers.name as customer_name, customers.lastname as customer_lastname, rentals.amount, rentals.status') // เพิ่ม 'status' จาก rentals
+                ->join('customers', 'rentals.customer_id', '=', 'customers.id')
+                ->with('book', 'customer') // ใช้กับ Eloquent relationship เพื่อดึงข้อมูลหนังสือและลูกค้า
                 ->when($query, function ($q) use ($query) {
                     return $q->where('rentals.id', 'like', "%{$query}%")
                         ->orWhere('rentals.rental_date', 'like', "%{$query}%")
@@ -52,19 +53,18 @@ class AdminController extends Controller
                         ->orWhere('customers.name', 'like', "%{$query}%")
                         ->orWhere('customers.lastname', 'like', "%{$query}%")
                         ->orWhere('rentals.status', 'like', "%{$query}%")
-                        ->orWhere('rentals.amount', 'like', "%{$query}%"); // เพิ่มการค้นหาค่าของ 'amount'
+                        ->orWhere('rentals.amount', 'like', "%{$query}%");
                 })
                 ->orderBy(
                     match ($sortBy) {
                         'customer.name' => 'customer_name',
                         'customer.lastname' => 'customer_lastname',
-                        default => "rentals.{$sortBy}"
+                        default => "rentals.{$sortBy}",
                     },
                     $sortDirection
                 )
                 ->paginate(10);
         }
-
         elseif ($selectedTable == 2) {
             $table = Book::selectRaw('books.*, categories.category_name, groups.group_name')
                 ->leftJoin('categories', 'books.category_id', '=', 'categories.id')
@@ -96,30 +96,19 @@ class AdminController extends Controller
 
         elseif ($selectedTable == 3) {
             $table = Customer::selectRaw('customers.*,
-                (SELECT rental_date FROM rentals WHERE rentals.customer_id = customers.id ORDER BY rental_date DESC LIMIT 1) as last_rental_date,
-                (SELECT status FROM payments WHERE payments.customer_id = customers.id ORDER BY payment_date DESC LIMIT 1) as last_payment_status'
-            )
-            ->with('rentals', 'payments')
-            ->when($query, function ($q) use ($query) {
-                return $q->where('name', 'like', "%{$query}%")
-                    ->orWhere('username', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%")
-                    ->orWhere('phone', 'like', "%{$query}%")
-                    ->orWhere('lastname', 'like', "%{$query}%")
-                    ->orWhere('book_count', 'like', "%{$query}%")
-                    ->orWhere('id', 'like', "%{$query}%");
-            });
-
-            // จัดการการเรียงลำดับ
-            if ($sortBy === 'rentals.rental_date') {
-                $table = $table->orderBy('last_rental_date', $sortDirection);
-            } elseif ($sortBy === 'payments.status') {
-                $table = $table->orderBy('last_payment_status', $sortDirection);
-            } else {
-                $table = $table->orderBy("customers.{$sortBy}", $sortDirection);
-            }
-
-            $table = $table->paginate(10);
+                (SELECT rental_date FROM rentals WHERE rentals.customer_id = customers.id ORDER BY rental_date DESC LIMIT 1) as last_rental_date')
+                ->with('rentals', 'payments')
+                ->when($query, function ($q) use ($query) {
+                    return $q->where('name', 'like', "%{$query}%")
+                        ->orWhere('username', 'like', "%{$query}%")
+                        ->orWhere('email', 'like', "%{$query}%")
+                        ->orWhere('phone', 'like', "%{$query}%")
+                        ->orWhere('lastname', 'like', "%{$query}%")
+                        ->orWhere('book_count', 'like', "%{$query}%")
+                        ->orWhere('id', 'like', "%{$query}%");
+                })
+                ->orderBy("customers.{$sortBy}", $sortDirection)
+                ->paginate(10);
         }
         elseif ($selectedTable == 4) {
             $table = Payment::selectRaw('payments.*,
@@ -192,7 +181,7 @@ class AdminController extends Controller
     {
         if ($table == 1) {
             $record = Rental::select('id', 'customer_id', 'book_id', 'rental_date', 'due_date','status',  'return_date','amount')
-                ->with('customer:id,name,lastname,status', 'book:id,book_name')
+                ->with('customer:id,name,lastname', 'book:id,book_name')
                 ->findOrFail($id);
         } elseif ($table == 2) {
             $record = Book::select('id', 'book_name', 'category_id', 'group_id', 'quantity', 'remaining_quantity', 'sold_quantity', 'price', 'publisher', 'author', 'description')
@@ -383,7 +372,7 @@ public function complete(Request $request)
         'book_id' => $bookId,
         'rental_id' => $rental->id,
         'payment_amount' => $paymentAmount, // จำนวนเงินที่ชำระ
-        'status' => 'paid',  // สถานะการชำระเงิน
+        'status' => '-',  // สถานะการชำระเงิน
         'penalty' => 0,  // ไม่มีค่าปรับ
         'payment_date' => now(), // วันที่ชำระเงิน
     ]);
@@ -393,6 +382,52 @@ public function complete(Request $request)
     $rental->save();
 
     return redirect('/admin/dashboard')->with('message', 'การชำระเงินได้รับการยืนยัน');
+}
+
+
+public function returnbook(Request $request)
+{
+    // ค้นหาการเช่าจาก rental_id
+    $rental = Rental::findOrFail($request->rental_id);
+
+    // ตรวจสอบสถานะการเช่าเป็น 'borrowed'
+    if ($rental->status !== 'borrowed') {
+        return response()->json(['error' => 'ไม่พบการเช่าที่ต้องการคืน'], 400);
+    }
+
+    // คำนวณค่าปรับ (ถ้ามี)
+    $penalty = 0;
+    $dueDate = $rental->due_date;
+    $returnDate = now(); // วันที่คืนหนังสือ
+    if ($returnDate > $dueDate) {
+        // คำนวณค่าปรับ (ตัวอย่าง: 10 บาทต่อวันเกินกำหนด)
+        $penalty = $returnDate->diffInDays($dueDate) * 10; // ค่าปรับ 10 บาทต่อวัน
+    }
+
+    // อัปเดตสถานะการเช่าเป็น 'return' และบันทึกวันที่คืน
+    $rental->return_date = $returnDate;
+    $rental->save();
+
+    // เพิ่มจำนวนหนังสือที่เหลือ
+    $book = $rental->book;
+    $book->remaining_quantity += 1;
+    $book->save();
+
+    // สร้างการชำระเงินในตาราง payments
+    $payment = Payment::create([
+        'customer_id' => $rental->customer_id,
+        'book_id' => $rental->book_id,
+        'rental_id' => $rental->id,
+        'payment_amount' => $rental->amount + $penalty,  // จำนวนเงินรวม (ค่าเช่าบวกค่าปรับ)
+        'penalty' => $penalty,  // เก็บค่าปรับ
+        'status' => 'return',  // สถานะเริ่มต้นคือ 'unpaid'
+    ]);
+
+    // ลบการเช่าจากตาราง rentals
+    $rental->delete();
+
+    // ส่งผลลัพธ์กลับ
+    return redirect()->route('admin.dashboard')->with('message', 'หนังสือถูกคืนแล้วและค่าปรับ (ถ้ามี) ถูกคำนวณ');
 }
 
 
