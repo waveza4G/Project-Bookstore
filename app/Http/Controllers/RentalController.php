@@ -43,7 +43,7 @@ class RentalController extends Controller
             'customer_id' => $customer->id, // ใช้ id ของลูกค้า
             'book_id' => $bookId,
             'rental_days' => $rentalDays,
-            'status' => 'pending', // เปลี่ยนสถานะเป็น 'pending' สำหรับการเช่าที่รอการชำระเงิน
+            'status' => '-', // เปลี่ยนสถานะเป็น 'pending' สำหรับการเช่าที่รอการชำระเงิน
             'rental_date' => now(), // กำหนดวันที่เช่า
             'due_date' => now()->addDays($rentalDays), // คำนวณวันที่คืนตามจำนวนวันที่เช่า
         ]);
@@ -59,85 +59,6 @@ class RentalController extends Controller
 
         // ส่งกลับผลการดำเนินการและเปลี่ยนหน้าไปที่ dashboard
         return redirect('/dashboard')->with('message', 'การเช่าสำเร็จ');
-    }
-
-
-
-    public function confirmPayment(Request $request)
-    {
-        // ตรวจสอบการอัปโหลดรูปภาพ
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // ตรวจสอบการอัปโหลดรูปภาพ
-        ]);
-
-        // เก็บไฟล์ใน storage
-        $imagePath = $request->file('image')->store('public/images'); // เก็บไฟล์ในโฟลเดอร์ public/images
-
-        // ดึงข้อมูลหนังสือที่เกี่ยวข้อง
-        $book = Book::findOrFail($request->input('bookId'));
-
-        // คำนวณจำนวนวันที่เช่า
-        $rentalDays = (int) $request->input('rentalDays', 7); // หากไม่ได้ส่ง rentalDays ให้ใช้ 7 วันเป็นค่าเริ่มต้น
-        $dueDate = now()->addDays($rentalDays); // คำนวณวันที่กำหนดคืน
-
-        // ตรวจสอบและดึงข้อมูลลูกค้า
-        $customerId = Auth::guard('customer')->id(); // ใช้ id ของลูกค้าในการทำธุรกรรม
-
-        // ตรวจสอบว่า customerId มีค่าถูกต้องและเป็น integer
-        if (!$customerId) {
-            // ถ้าไม่พบ customer_id หรือไม่สามารถดึงได้จากการล็อกอิน ให้แจ้งข้อผิดพลาด
-            return response()->json(['error' => 'ไม่สามารถดึงข้อมูลลูกค้าได้'], 400);
-        }
-
-        // สร้างการเช่าหนังสือในฐานข้อมูล
-        $rental = Rental::create([
-            'customer_id' => $customerId, // ใช้ customer_id ที่ถูกต้องจากการล็อกอิน
-            'book_id' => $request->input('bookId'),
-            'rental_date' => now(),
-            'due_date' => $dueDate,
-            'image' => $imagePath,
-        ]);
-
-        // อัปเดตจำนวนการยืมของลูกค้า
-        $customer = $rental->customer;
-        $customer->increment('book_count');
-        $customer->update(['status' => 'borrowed']);
-
-        // อัปเดตข้อมูลหนังสือ
-        $book->decrement('remaining_quantity');
-        $book->increment('sold_quantity');
-
-        // ส่งข้อมูลไปยังหน้า 'Detail.jsx'
-        return Inertia::visit("/book/{$book->id}", [
-            'rental' => $rental,
-            'book' => $book,
-            'customer' => $customer,
-        ])->with('success', 'การชำระเงินสำเร็จ และการยืมหนังสือได้ถูกบันทึก');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create($customerId, $bookId, $rentalDays)
-    {
-        // ตรวจสอบว่าเป็นลูกค้าที่กำลังล็อกอินหรือไม่
-        if (Auth::guard('customer')->check() && Auth::guard('customer')->user()->id != $customerId) {
-            abort(403, 'คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้');
-        }
-
-        // ดึงข้อมูลหนังสือ
-        $book = Book::find($bookId);
-
-        // คำนวณราคาค่าเช่า
-        $rentalRate = 0.04; // ใช้ค่าเช่าตามจำนวนวันที่กำหนด
-        $rentalAmount = ceil($book->price * $rentalDays * $rentalRate);
-
-        // ส่งข้อมูลไปยังหน้าของ QR Code
-        return Inertia::render('Bookstore/QrCode', [
-            'rentalAmount' => $rentalAmount,
-            'book' => $book, // ส่งข้อมูลหนังสือไปยังหน้า QR Code
-            'rentalDays' => $rentalDays,
-        ]);
     }
 
 

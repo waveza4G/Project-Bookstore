@@ -46,7 +46,8 @@ class HandleInertiaRequests extends Middleware
             ],
             'categories' => DB::table('categories')->select('id', 'category_name')->get(),
             'groups' => DB::table('groups')->select('id', 'group_name')->get(),
-
+            'rentals' => DB::table('rentals')
+            ->select('id', 'customer_id', 'book_id', 'rental_date', 'due_date', 'return_date', 'status')->get(),
             'books' => DB::table('books')
             ->join('categories', 'books.category_id', '=', 'categories.id')  // join กับ categories
             ->join('groups', 'books.group_id', '=', 'groups.id')  // join กับ groups

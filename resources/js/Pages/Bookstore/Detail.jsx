@@ -4,7 +4,7 @@ import { Inertia } from "@inertiajs/inertia";
 import Navbar from "./Navbar";
 
 const Detail = () => {
-  const { book, auth, existingRental } = usePage().props;
+  const { book, auth, rentals } = usePage().props; // ดึงข้อมูล rentals จาก share()
 
   // อัตราค่าเช่าตามจำนวนวันที่เช่า (1-7 วัน)
   const rentalRates = {
@@ -58,6 +58,8 @@ const Detail = () => {
     });
   };
 
+  const existingRental = rentals.find(rental => rental.book_id === book.id && rental.customer_id === auth.customer.id);
+
   return (
     <div className="bg-gray-100 min-h-screen">
       <Navbar />
@@ -98,12 +100,6 @@ const Detail = () => {
                   {existingRental.status === "-" && (
                     <div>
                       <p className="text-yellow-500">⚠️ การเช่ายังรอการชำระเงิน</p>
-                      <Link
-                        href={`/payments/create?rental_id=${existingRental.id}`}
-                        className="bg-orange-500 text-white px-4 py-2 rounded mt-4 inline-block"
-                      >
-                        ไปที่หน้าชำระเงิน
-                      </Link>
                     </div>
                   )}
 
