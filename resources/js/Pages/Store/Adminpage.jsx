@@ -62,7 +62,7 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
                 { label: 'รหัสหนังสือ', key: 'book_id' },
                 { label: 'ชื่อหนังสือ', key: 'book.book_name' },  // เพิ่มคอลัมน์ชื่อหนังสือ
                 { label: 'รหัสการยืม', key: 'rental_id' },
-                { label: 'วันที่ชำระ', key: 'rental.return_date' }, // เพิ่มคอลัมน์วันที่ชำระ
+                { label: 'วันที่คืนหนังสือ', key: 'rental.return_date' }, // เพิ่มคอลัมน์วันที่ชำระ
                 { label: 'Option', key: 'option' },
             ],
 
@@ -201,99 +201,105 @@ export default function Adminpage({ table, tableNo, sortBy, sortDirection, query
                 <div className="overflow-x-auto rounded-lg shadow-md">
                     <table className="w-full bg-white rounded-lg">
                         <thead>
-                            <tr className="bg-indigo-600 text-white">
-                                {columns[selectedTable]?.map((col) => (
-                                    <th
-                                        key={col.key}
-                                        className="px-6 py-3 text-left font-medium whitespace-nowrap cursor-pointer hover:bg-indigo-700"
-                                        onClick={() => handleSort(col.key)}
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            {col.label}
-                                            {sortBy === col.key && (
-                                                <span className="text-gray-300">
-                                                    {sortDirection === 'asc' ? '⬆️' : '⬇️'}
-                                                </span>
-                                            )}
-                                        </span>
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {table?.data?.length > 0 ? (
-                                table.data.map((row, index) => (
-                                    <tr
-                                        key={row.id}
-                                        className={`border-b ${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'} hover:bg-gray-200`}
-                                    >
-                                        {columns[selectedTable]?.map((col) => (
-                                            <td key={col.key} className="px-6 py-4 text-gray-700 whitespace-nowrap">
-                                                {col.key !== 'option' && col.key !== 'Payment' ? (
-                                                    getValue(row, col.key)
-                                                ) : col.key === 'Payment' ? (
-                                                    // เพิ่มเงื่อนไขการตรวจสอบสถานะ 'borrowed'
-                                                    row.status === 'borrowed' ? (
-                                                        <button
-                                                        onClick={() => {
-                                                            if (confirm('Are you sure you want to return this book?')) {
-                                                                router.post('/rental/returnbook', {
-                                                                    rental_id: row.id,  // ส่ง rental_id เพื่อให้ Controller ใช้
-                                                                });
-                                                            }
-                                                        }}
-                                                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                                                    >
-                                                        ยืนยันการคืน
-                                                    </button>
+                        <tr className="bg-indigo-600 text-white">
+    {columns[selectedTable]?.map((col) => (
+        <th
+            key={col.key}
+            className="px-6 py-3 text-left font-medium whitespace-nowrap cursor-pointer hover:bg-indigo-700"
+            onClick={() => handleSort(col.key)}
+        >
+            <span className="flex items-center gap-2">
+                {col.label}
+                {sortBy === col.key && (
+                    <span className="text-gray-300">
+                        {sortDirection === 'asc' ? '⬆️' : '⬇️'}
+                    </span>
+                )}
+            </span>
+        </th>
+    ))}
+</tr>
+</thead>
+<tbody>
+    {table?.data?.length > 0 ? (
+        table.data.map((row, index) => (
+            <tr
+                key={row.id}
+                className={`border-b ${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'} hover:bg-gray-200`}
+            >
+                {columns[selectedTable]?.map((col) => (
+                    <td key={col.key} className="px-6 py-4 text-gray-700 whitespace-nowrap">
+                        {col.key !== 'option' && col.key !== 'Payment' ? (
+                            getValue(row, col.key)
+                        ) : col.key === 'Payment' ? (
+                            // เงื่อนไขการแสดงปุ่มตามสถานะของการเช่า
+                            row.status === "-" ? (
+                                <button
+                                    disabled
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-lg cursor-not-allowed"
+                                >
+                                    ไม่มีสถานะ
+                                </button>
+                            ) : row.status === "waiting" ? (
+                                <button
+                                    onClick={() => {
+                                        if (confirm('Are you sure you want to payment this book?')) {
+                                            const rentalId = row.id; // รหัสการเช่า
+                                            const paymentAmount = row.amount; // จำนวนเงินที่ชำระ (จากจำนวนเงินที่ต้องชำระ)
+                                            Inertia.post('/rental/complete', {
+                                                rental_id: rentalId,
+                                                payment_amount: paymentAmount,  // ส่งจำนวนเงินที่ชำระไป
+                                                book_id: row.book_id,  // ส่งรหัสหนังสือ
+                                            });
+                                        }
+                                    }}
+                                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                                >
+                                    ยืนยันการชำระเงิน
+                                </button>
+                            ) : row.status === "borrowed" ? (
+                                <button
+                                    onClick={() => {
+                                        if (confirm('Are you sure you want to return this book?')) {
+                                            router.post('/rental/returnbook', {
+                                                rental_id: row.id,  // ส่ง rental_id เพื่อให้ Controller ใช้
+                                            });
+                                        }
+                                    }}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                                >
+                                    ยืนยันการคืน
+                                </button>
+                            ) : null
+                        ) : (
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={() => router.visit(`/admin/edit/${selectedTable}/${row.id}`)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(row.id)}
+                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        )}
+                    </td>
+                ))}
+            </tr>
+        ))
+    ) : (
+        <tr>
+            <td colSpan={columns[selectedTable]?.length} className="text-center py-4 text-gray-500">
+                No data found
+            </td>
+        </tr>
+    )}
+</tbody>
 
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => {
-                                                                if (confirm('Are you sure you want to payment this book?')) {
-                                                                const rentalId = row.id; // รหัสการเช่า
-                                                                const paymentAmount = row.amount; // จำนวนเงินที่ชำระ (จากจำนวนเงินที่ต้องชำระ)
-                                                                Inertia.post('/rental/complete', {
-                                                                    rental_id: rentalId,
-                                                                    payment_amount: paymentAmount,  // ส่งจำนวนเงินที่ชำระไป
-                                                                    book_id: row.book_id,  // ส่งรหัสหนังสือ
-                                                                });
-                                                            }
-                                                            }}
-                                                            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-                                                        >
-                                                            ยืนยันการชำระเงิน
-                                                        </button>
-
-                                                    )
-                                                ) : (
-                                                    <div className="flex space-x-2">
-                                                        <button
-                                                            onClick={() => router.visit(`/admin/edit/${selectedTable}/${row.id}`)}
-                                                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(row.id)}
-                                                            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={columns[selectedTable]?.length} className="text-center py-4 text-gray-500">
-                                        No data found
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
                     </table>
                 </div>
 

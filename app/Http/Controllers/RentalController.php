@@ -29,30 +29,46 @@ class RentalController extends Controller
 
         // ค้นหาหนังสือ
         $book = Book::find($bookId);
-        $book->remaining_quantity -= 1; // ลดจำนวนหนังสือที่เหลือ
-        $book->sold_quantity += 1;
-        $book->save();
         if (!$book) {
             return response()->json(['error' => 'ไม่พบข้อมูลหนังสือ'], 404);
         }
 
+        // ลดจำนวนหนังสือที่เหลือ
+        $book->remaining_quantity -= 1;
+        $book->sold_quantity += 1;
+        $book->save();
+
+        // อัปเดตจำนวนหนังสือที่ลูกค้าเช่า
         $customer->book_count += 1;
         $customer->save();
 
-        // สร้างข้อมูลการเช่าใหม่
-        $rental = Rental::create([
-            'customer_id' => $customer->id,
-            'book_id' => $bookId,
-            'rental_days' => $rentalDays,
-            'status' => 'waiting',
-            'rental_date' => now(),
-            'due_date' => now()->addDays($rentalDays),
-            'amount' => $rentalAmount, // เก็บจำนวนเงินที่ต้องชำระ
-        ]);
+        // ตรวจสอบว่ามีการเช่าหนังสือเล่มนี้อยู่แล้วหรือไม่
+        $existingRental = Rental::where('customer_id', $customer->id)
+                                ->where('book_id', $bookId)
+                                ->first();  // ค้นหาการเช่าหนังสือของลูกค้า
+
+        if ($existingRental) {
+            // ถ้ามีการเช่าอยู่แล้ว
+            $existingRental->amount = $rentalAmount; // เพิ่มจำนวนเงินที่ต้องชำระ
+            $existingRental->due_date = now()->addDays($rentalDays); // อัปเดตวันครบกำหนด
+            $existingRental->status = 'waiting'; // เปลี่ยนสถานะเป็น 'waiting'
+            $existingRental->save(); // บันทึกการอัปเดต
+        } else {
+            // ถ้ายังไม่มีการเช่าให้สร้างข้อมูลใหม่
+            Rental::create([
+                'customer_id' => $customer->id,
+                'book_id' => $bookId,
+                'status' => 'waiting',  // สถานะรอการชำระเงิน
+                'rental_date' => now(),
+                'due_date' => now()->addDays($rentalDays), // เก็บวันครบกำหนดตามที่ได้รับจาก request
+                'amount' => $rentalAmount, // จำนวนเงินที่ต้องชำระ
+            ]);
+        }
 
         // ส่งข้อมูลจำนวนเงินที่ต้องชำระไปกับข้อความหลังการเช่า
         return redirect('/dashboard')->with('message', 'การเช่าสำเร็จ')->with('rentalAmount', $rentalAmount);
     }
+
 
 
 }

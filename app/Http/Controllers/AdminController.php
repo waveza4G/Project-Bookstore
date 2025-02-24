@@ -385,6 +385,7 @@ public function complete(Request $request)
 }
 
 
+
 public function returnbook(Request $request)
 {
     // ค้นหาการเช่าจาก rental_id
@@ -399,13 +400,12 @@ public function returnbook(Request $request)
     $penalty = 0;
     $dueDate = $rental->due_date;
     $returnDate = now(); // วันที่คืนหนังสือ
-    if ($returnDate > $dueDate) {
-        // คำนวณค่าปรับ (ตัวอย่าง: 10 บาทต่อวันเกินกำหนด)
-        $penalty = $returnDate->diffInDays($dueDate) * 10; // ค่าปรับ 10 บาทต่อวัน
-    }
 
-    // เก็บข้อมูลของ $rental ไว้ก่อนที่คุณจะลบมัน
-    $rentalData = $rental->toArray();
+    // ถ้าคืนหนังสือหลังจาก due_date คำนวณค่าปรับ
+    if ($returnDate > $dueDate) {
+        // คำนวณค่าปรับ (ตัวอย่าง: 0.05 บาทต่อวันเกินกำหนด)
+        $penalty = $returnDate->diffInDays($dueDate) * 0.05; // ค่าปรับ 0.05 บาทต่อวัน
+    }
 
     // อัปเดตสถานะการเช่าเป็น 'return' และบันทึกวันที่คืน
     $rental->return_date = $returnDate;
@@ -417,20 +417,21 @@ public function returnbook(Request $request)
     $book->remaining_quantity += 1;
     $book->save();
 
-    // สร้างการชำระเงินในตาราง payments
-    $payment = Payment::create([
-        'customer_id' => $rental->customer_id,
-        'book_id' => $rental->book_id,
-        'rental_id' => $rental->id,
-        'payment_amount' => $rental->amount + $penalty,  // จำนวนเงินรวม (ค่าเช่าบวกค่าปรับ)
-        'penalty' => $penalty,  // เก็บค่าปรับ
-        'status' => 'return',  // สถานะเริ่มต้นคือ 'unpaid'
-    ]);
+    // ค้นหาการชำระเงินที่มีอยู่
+    $payment = Payment::where('rental_id', $rental->id)->where('book_id', $rental->book_id)->first();
+
+
+        $payment->payment_amount += $rental->amount + $penalty;
+        $payment->penalty += $penalty; // เพิ่มค่าปรับที่คำนวณ
+        $payment->status = 'return'; // เปลี่ยนสถานะการชำระเงินเป็น 'paid'
+        $payment->payment_date = now(); // วันที่ชำระเงิน
+        $payment->save(); // บันทึกการอัปเดต
 
 
     // ส่งผลลัพธ์กลับ
     return redirect()->route('admin.dashboard')->with('message', 'หนังสือถูกคืนแล้วและค่าปรับ (ถ้ามี) ถูกคำนวณ');
 }
+
 
 
 
