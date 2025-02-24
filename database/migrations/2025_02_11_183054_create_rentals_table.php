@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('rental_date');  // วันที่เช่า
             $table->date('due_date');  // วันที่กำหนดคืน
             $table->date('return_date')->nullable();  // วันที่คืน (อาจเป็น null ถ้ายังไม่คืน)
-            $table->decimal('amount', 10, 2)->nullable(); // จำนวนเงินที่ต้องชำระ (เก็บเป็น decimal)    
-            $table->enum('status', ['borrowed', '-'])->default('-');
+            $table->decimal('amount', 10, 2)->nullable(); // จำนวนเงินที่ต้องชำระ (เก็บเป็น decimal)
+            $table->enum('status', ['borrowed','waiting','-'])->default('-');
             $table->timestamps();  // คอลัมน์ created_at และ updated_at
 
         });

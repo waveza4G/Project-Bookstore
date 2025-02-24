@@ -62,6 +62,14 @@ export default function Edit({ table, record, categories = [], groups = [] }) {
                             <label>Amount:</label>
                             <input type="number" name="amount" value={data.amount || ''} onChange={handleChange} className="border p-2 w-full" />
 
+                            <label>Status:</label>
+                            <select name="status" value={data.status} onChange={handleChange} className="border p-2 w-full">
+                                <option value="-">-</option>
+                                <option value="borrowed">Borrowed</option>
+                                <option value="waiting">waiting</option>
+
+                            </select>
+
                         </>
                     )}
 

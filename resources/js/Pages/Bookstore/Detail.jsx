@@ -97,7 +97,7 @@ const Detail = () => {
                   </p>
                   <p className="text-red-500 font-bold mt-4">📌 คุณเช่าหนังสือเล่มนี้แล้ว</p>
 
-                  {existingRental.status === "-" && (
+                  {existingRental.status === "waiting" && (
                     <div>
                       <p className="text-yellow-500">⚠️ การเช่ายังรอการชำระเงิน</p>
                     </div>
@@ -110,20 +110,24 @@ const Detail = () => {
               ) : (
                 // ถ้ายังไม่ได้เช่า
                 <div className="mt-4">
-                  <label>เลือกจำนวนวันที่ต้องการเช่า (1-7 วัน):</label>
-                  <input
-                    type="number"
-                    name="rental_days"
-                    min="1"
-                    max="7"
-                    value={data.rental_days}
-                    onChange={handleDaysChange}
-                    required
-                    className="border p-2 ml-2"
-                  />
-                  <p className="mt-2">
-                    <strong>ราคาค่าเช่า:</strong> ฿{rentalPrice} {/* แสดงราคาค่าเช่าที่คำนวณ */}
-                  </p>
+                  {existingRental?.status === '-' && (
+                    <>
+                      <label>เลือกจำนวนวันที่ต้องการเช่า (1-7 วัน):</label>
+                      <input
+                        type="number"
+                        name="rental_days"
+                        min="1"
+                        max="7"
+                        value={data.rental_days}
+                        onChange={handleDaysChange}
+                        required
+                        className="border p-2 ml-2"
+                      />
+                      <p className="mt-2">
+                        <strong>ราคาค่าเช่า:</strong> ฿{rentalPrice} {/* แสดงราคาค่าเช่าที่คำนวณ */}
+                      </p>
+                    </>
+                  )}
                 </div>
               )
             ) : (
@@ -156,4 +160,3 @@ const Detail = () => {
 };
 
 export default Detail;
-    

@@ -404,8 +404,12 @@ public function returnbook(Request $request)
         $penalty = $returnDate->diffInDays($dueDate) * 10; // ค่าปรับ 10 บาทต่อวัน
     }
 
+    // เก็บข้อมูลของ $rental ไว้ก่อนที่คุณจะลบมัน
+    $rentalData = $rental->toArray();
+
     // อัปเดตสถานะการเช่าเป็น 'return' และบันทึกวันที่คืน
     $rental->return_date = $returnDate;
+    $rental->status = '-'; // เปลี่ยนสถานะเป็น 'return'
     $rental->save();
 
     // เพิ่มจำนวนหนังสือที่เหลือ
@@ -423,12 +427,11 @@ public function returnbook(Request $request)
         'status' => 'return',  // สถานะเริ่มต้นคือ 'unpaid'
     ]);
 
-    // ลบการเช่าจากตาราง rentals
-    $rental->delete();
 
     // ส่งผลลัพธ์กลับ
     return redirect()->route('admin.dashboard')->with('message', 'หนังสือถูกคืนแล้วและค่าปรับ (ถ้ามี) ถูกคำนวณ');
 }
+
 
 
 

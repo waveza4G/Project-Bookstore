@@ -44,7 +44,7 @@ class RentalController extends Controller
             'customer_id' => $customer->id,
             'book_id' => $bookId,
             'rental_days' => $rentalDays,
-            'status' => '-',
+            'status' => 'waiting',
             'rental_date' => now(),
             'due_date' => now()->addDays($rentalDays),
             'amount' => $rentalAmount, // เก็บจำนวนเงินที่ต้องชำระ

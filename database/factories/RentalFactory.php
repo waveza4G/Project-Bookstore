@@ -24,7 +24,7 @@ class RentalFactory extends Factory
             'rental_date' => $this->faker->date(),
             'due_date' => $this->faker->date(),
             'return_date' => $this->faker->optional()->date(), // return_date สามารถเป็น null ได้
-            'status' => $this->faker->randomElement(['borrowed', '-']),
+            'status' => $this->faker->randomElement(['borrowed', '-','waiting']),
             'amount' => $this->faker->randomFloat(2, 100, 500),  // สุ่มจำนวนเงินที่ต้องชำระ (ช่วง 100 - 500 บาท)
 
         ];
