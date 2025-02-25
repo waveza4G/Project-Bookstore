@@ -188,7 +188,6 @@ class AdminController extends Controller
                 ->with('category:id,category_name', 'group:id,group_name')
                 ->findOrFail($id);
 
-            // ✅ เพิ่มเพื่อส่งข้อมูล categories และ groups ไปยัง Frontend
             $categories = Category::select('id', 'category_name')->get();
             $groups = Group::select('id', 'group_name')->get();
         } elseif ($table == 3) {
@@ -207,7 +206,7 @@ class AdminController extends Controller
         return Inertia::render('Store/Edit', [
             'table' => $table,
             'record' => $record,
-            'categories' => $categories ?? [], // ✅ ใช้ `?? []` เพื่อป้องกัน error
+            'categories' => $categories ?? [],
             'groups' => $groups ?? [],
         ]);
     }
@@ -225,6 +224,8 @@ class AdminController extends Controller
         } elseif ($table == 2) {
             $validated = $request->validate([
                 'book_name' => 'required|string|max:255',
+                'category_id' => 'required|integer|exists:categories,id',
+                'group_id' => 'required|integer|exists:groups,id',
                 'quantity' => 'required|integer|min:1',
                 'remaining_quantity' => 'required|integer|min:0',
                 'sold_quantity' => 'nullable|integer|min:0',
@@ -234,8 +235,8 @@ class AdminController extends Controller
                 'description' => 'required|string',
             ]);
 
+            // Update the Book with the validated data, including category_id and group_id
             Book::where('id', $id)->update($validated);
-
             return redirect()->route('admin.dashboard')->with('success', 'บันทึกข้อมูลสำเร็จ!');
         } elseif ($table == 3) {
             $validated = $request->validate([
@@ -311,6 +312,7 @@ class AdminController extends Controller
             'book' => $book
         ]);
     }
+
     public function uploadImage(Request $request, $id)
     {
         $book = Book::findOrFail($id);
@@ -333,18 +335,6 @@ class AdminController extends Controller
 
         return redirect()->route('admin.edit', ['table' => 2, 'id' => $id])->with('success', 'อัปโหลดรูปภาพสำเร็จ!');
     }
-
-    // RentalController.php
-// RentalController.php
-
-public function showUploadQRImage($id)
-{
-    $rental = Rental::findOrFail($id);
-    return Inertia::render('Store/UpdateQR', [
-        'rental' => $rental, // ส่งข้อมูล rental ไปยังหน้า UpdateQR
-    ]);
-}
-
 
 public function complete(Request $request)
 {
@@ -409,7 +399,7 @@ public function returnbook(Request $request)
 
     // อัปเดตสถานะการเช่าเป็น 'return' และบันทึกวันที่คืน
     $rental->return_date = $returnDate;
-    $rental->status = '-'; // เปลี่ยนสถานะเป็น 'return'
+    $rental->status = '-';
     $rental->save();
 
     // เพิ่มจำนวนหนังสือที่เหลือ
@@ -417,18 +407,26 @@ public function returnbook(Request $request)
     $book->remaining_quantity += 1;
     $book->save();
 
-    // ค้นหาการชำระเงินที่มีอยู่
-    $payment = Payment::where('rental_id', $rental->id)->where('book_id', $rental->book_id)->first();
+    // ค้นหาการชำระเงินที่ตรงกับ customer_id และ book_id
+    $payment = Payment::where('rental_id', $rental->id)
+                      ->where('book_id', $rental->book_id)
+                      ->where('customer_id', $rental->customer_id) // ตรวจสอบว่า customer_id ตรงกัน
+                      ->where('status', '-') // ตรวจสอบสถานะว่าเป็น '-'
+                      ->first();
 
-
+    if ($payment) {
+        // ถ้าสถานะเป็น '-', เปลี่ยนเป็น 'return'
         $payment->payment_amount += $rental->amount + $penalty;
         $payment->penalty += $penalty; // เพิ่มค่าปรับที่คำนวณ
-        $payment->status = 'return'; // เปลี่ยนสถานะการชำระเงินเป็น 'paid'
+        $payment->status = 'return'; // เปลี่ยนสถานะการชำระเงินเป็น 'return'
         $payment->payment_date = now(); // วันที่ชำระเงิน
         $payment->save(); // บันทึกการอัปเดต
+    } else {
+
+        return response()->json(['error' => 'ไม่สามารถบันทึกการคืนได้ เพราะการชำระเงินไม่อยู่ในสถานะที่สามารถทำการคืนได้'], 400);
+    }
 
 
-    // ส่งผลลัพธ์กลับ
     return redirect()->route('admin.dashboard')->with('message', 'หนังสือถูกคืนแล้วและค่าปรับ (ถ้ามี) ถูกคำนวณ');
 }
 

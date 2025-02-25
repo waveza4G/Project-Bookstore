@@ -31,43 +31,15 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/Showcategory', [BookController::class, 'Showcategory'])->name('Showcategory.index');
 
+    Route::post('/rental', [RentalController::class, 'rental'])->name('rental.wait');
+
 });
-// เส้นทางสำหรับการเช่าหนังสือ
-// เส้นทางสำหรับหน้าชำระเงิน
-
-// Route::get('/qrcode/{customerId}', [RentalController::class, 'show'])->name('qrcode.show');
-Route::post('/rental', [RentalController::class, 'rental'])->name('rental.wait');
-Route::post('/rental/complete', [AdminController::class, 'complete'])->name('rental.complete');
-Route::post('/rental/returnbook', [AdminController::class, 'returnbook'])->name('rental.returnbook');
-
-Route::get('/rental/{customerId}/book/{bookId}/days/{rentalDays}', [RentalController::class, 'create'])->name('rental.create');
-Route::post('/payment/confirm', [RentalController::class, 'confirmPayment'])->name('payment.confirm');
-
-
-// Route::get('/admin/upload-image/{id}', [AdminController::class, 'showUploadQRImage'])
-//     ->name('admin.upload-image'); // แสดงหน้าอัปโหลดรูปภาพ
-
-// Route::post('/admin/upload-image/{id}', [AdminController::class, 'uploadQRImage'])
-//     ->name('admin.upload-image.store'); // อัปโหลดรูปภาพ
-
-// Route::get('/payments/create/{rental_id}/{rental_amount}', [PaymentController::class, 'create'])->name('payments.create');
-
-// Route::get('/rental/{customerId}/book/{bookId}/days/{rentalDays}', [RentalController::class, 'create'])->name('rental.create');
-
-// Route::get('/qrcode/{customerId}/book/{bookId}', [RentalController::class, 'show'])->name('qrcode.show');
-// Route::post('/payment/complete', [PaymentController::class, 'complete'])->name('payment.complete');
-
-
-// Route::get('/highlight/{category}', [BookController::class, 'highlight'])->name('highlight');
-
-// Route::get('/highlight', function () {return inertia('Bookstore/Highlight');})->name('highlight.index');
 
 Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/edit/{table}/{id}', [AdminController::class, 'edit'])->name('admin.edit');
     Route::put('/admin/update/{table}/{id}', [AdminController::class, 'update'])->name('admin.update');
     Route::delete('/admin/dashboard/{table}/{id}', [AdminController::class, 'destroy'])->name('admin.destroy');
-
 
     Route::get('/admin/upload-image/{id}', [AdminController::class, 'showUploadImage'])->name('admin.upload-image');
     Route::post('/admin/upload-image/{id}', [AdminController::class, 'uploadImage'])->name('admin.upload-image.post');
@@ -82,11 +54,16 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
     Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
     Route::delete('/groups/{id}', [GroupController::class, 'destroy'])->name('groups.destroy');
+
+    Route::post('/rental/complete', [AdminController::class, 'complete'])->name('rental.complete');
+    Route::post('/rental/returnbook', [AdminController::class, 'returnbook'])->name('rental.returnbook');
+
+    // Route::get('/admin/register', function () {
+    //     return inertia('Store/AdminRegister');
+    //     })->name('admin.register.form');
 });
 
-        Route::get('/admin/register', function () {
-        return inertia('Store/AdminRegister');
-        })->name('admin.register.form');
+
 
 // Route::middleware('auth')->group(function () {
 
@@ -97,10 +74,10 @@ Route::middleware(['auth:admin'])->group(function () {
 
 //     }});
 
-Route::middleware(['auth:customer'])->group(function () {
+// Route::middleware(['auth:customer'])->group(function () {
 
 
-});
+// });
 Route::get('/rental', function () {
     return inertia('Bookstore/Rental');
 })->name('rental');

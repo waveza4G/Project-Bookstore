@@ -7,7 +7,7 @@ const Navbar = () => {
   const admin = auth.admin;
 
   const logout = () => {
-    Inertia.post("/logout"); // ใช้ Inertia สำหรับการ logout
+    Inertia.post("/logout"); 
   };
 
 
@@ -16,7 +16,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex items-center justify-between">
         <div className="text-white text-2xl font-semibold">
           <a href="/" className="hover:text-gray-300 transition duration-300">
-            MyApp
+            Walk In Library
           </a>
         </div>
 

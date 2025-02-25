@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { usePage, Link } from "@inertiajs/react";
 import { ChevronLeft, ChevronRight } from "lucide-react"; // ไอคอนลูกศร
 
-const Books = () => {
+const Books2 = () => {
   const { books = [] } = usePage().props;
   const scrollRef = useRef(null); // ใช้อ้างอิง div ที่เลื่อน
 
@@ -20,7 +20,7 @@ const Books = () => {
 
   return (
     <div className="container mx-auto p-4 relative">
-      <h2 className="text-2xl font-bold mb-4">หนังสือแนะนำ</h2>
+      <h2 className="text-2xl font-bold mb-4">หนังสือยอดนิยม</h2>
 
       {/* ปุ่มเลื่อนซ้าย */}
       <button
@@ -52,7 +52,7 @@ const Books = () => {
 
           <div className="flex space-x-4">
             {books.length > 0 ? (
-              books.map((book) => (
+             [...books].reverse().map((book) => (
                 <div key={book.id} className="w-60 min-w-[240px] flex flex-col justify-between">
                   {/* รูปภาพหนังสือ */}
                   <Link href={route('books.show', book.id)} className="text-[#BA7D66] text-sm font-semibold mt-2">
@@ -66,7 +66,7 @@ const Books = () => {
                   {/* รายละเอียดหนังสือ */}
                   <div className="w-48 mt-2 text-left flex-grow">
                   <h3 className="text-lg font-semibold text-gray-900 block text-truncate">
-                    {limitText(book.book_name, 20)} {/* จำกัดความยาวของชื่อหนังสือ */}
+                  {limitText(book.book_name, 20)} {/* จำกัดความยาวของชื่อหนังสือ */}
                     </h3>
                     <p className="text-xs text-gray-500 truncate">{book.author || "ไม่ระบุผู้แต่ง"}</p>
                     <p className="text-xs text-gray-500 truncate">จำนวนคงเหลือ: {book.remaining_quantity || "ไม่ระบุ"}</p>
@@ -93,7 +93,7 @@ const Books = () => {
         </Link>
       </div>
 
-      {/* ปุ่มเลื่อนขวา */}
+
       <button
         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-md p-2 rounded-full hidden sm:block z-10"
         onClick={() => scroll("right")}
@@ -104,4 +104,4 @@ const Books = () => {
   );
 };
 
-export default Books;
+export default Books2;

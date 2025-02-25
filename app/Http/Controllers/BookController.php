@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Group;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Auth;  
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 class BookController extends Controller
@@ -65,11 +66,22 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
-        // ดึงข้อมูลหนังสือที่เลือกมาแสดง
+        // ตรวจสอบว่า customer ได้เข้าสู่ระบบหรือไม่
+        if (!Auth::guard('customer')->check()) {
+            // ถ้ายังไม่ล็อกอินให้ไปที่หน้า login
+            return redirect()->route('login'); // หรือใช้ Inertia::visit('/login')
+        }
+        Auth::guard('admin')->check();
+
+        // ส่งข้อมูล book ไปยังหน้า Detail
         return inertia('Bookstore/Detail', [
             'book' => $book
         ]);
     }
+
+
+
+
 
 
     public function create()

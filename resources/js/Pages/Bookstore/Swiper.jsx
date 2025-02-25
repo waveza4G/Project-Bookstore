@@ -16,18 +16,19 @@ const ImageSlider = () => {
     "/storage/image/role2.jpeg",
     "/storage/image/role3.jpeg",
     "/storage/image/role4.jpeg",
+    "/storage/image/Logo.jpg"
   ];
 
   return (
-    <div className="flex gap-6">
+    <div className="flex gap-6 flex-col sm:flex-row">
       {/* Swiper Slide Section */}
-      <div className="w-[950px] h-[450px]"> {/* กำหนดขนาดใหม่ที่นี่ */}
+      <div className="w-full sm:w-[950px] h-[450px]"> {/* Make it responsive with sm: */}
         <Swiper
           modules={[Pagination, Autoplay]}
           pagination={{ clickable: true }}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           loop
-          allowTouchMove={false} // Disables manual dragging
+          allowTouchMove={true} // Enable manual dragging
           className="rounded-lg shadow-lg"
           direction="horizontal"
           speed={1000} // Slide transition speed
@@ -46,7 +47,7 @@ const ImageSlider = () => {
       </div>
 
       {/* Swiper for Static Images */}
-      <div className="w-[520px] h-[450px]"> {/* ปรับให้มีขนาดเท่ากับ Swiper */}
+      <div className="w-full sm:w-[520px] h-[450px]"> {/* Adjust to be responsive */}
         <Swiper
           modules={[Pagination, Autoplay]}
           pagination={{ clickable: true }}
@@ -61,7 +62,7 @@ const ImageSlider = () => {
               <img
                 src={src}
                 alt={`Static Image ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full sm:w-[520px] h-[475px] object-cover rounded-lg"
                 onError={(e) => (e.target.style.display = "none")} // Hide image if not found
               />
             </SwiperSlide>

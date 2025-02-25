@@ -34,7 +34,6 @@ class AuthController extends Controller
 
         // เก็บ email และ token ใน session แทน user_id
         $request->session()->put('email', $customer->email);
-        $request->session()->put('token', $token);
 
         return redirect('/dashboard')->with('success', 'Welcome, Customer!');
     }
@@ -48,7 +47,6 @@ class AuthController extends Controller
 
         // เก็บ email และ token ใน session แทน user_id
         $request->session()->put('email', $admin->email);
-        $request->session()->put('token', $token);
 
         return redirect('/admin/dashboard')->with('success', 'Welcome, Admin!');
     }
@@ -84,7 +82,6 @@ class AuthController extends Controller
         // สร้าง token และเก็บ email และ token ใน session แทน user_id
         $token = $admin->createToken('Admin Access Token')->plainTextToken;
         $request->session()->put('email', $admin->email);
-        $request->session()->put('token', $token);
 
         // ล็อกอินแอดมิน
         Auth::guard('admin')->login($admin);
@@ -121,7 +118,6 @@ class AuthController extends Controller
         // สร้าง token และเก็บ email และ token ใน session แทน user_id
         $token = $customer->createToken('Customer Access Token')->plainTextToken;
         $request->session()->put('email', $customer->email);
-        $request->session()->put('token', $token);
 
         // ล็อกอินลูกค้า
         Auth::guard('customer')->login($customer);
@@ -145,9 +141,7 @@ class AuthController extends Controller
 
         // ลบข้อมูลใน session
         $request->session()->forget('email');  // ลบแค่ email ที่ใช้กับ session
-        $request->session()->forget('token');
         $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
         return redirect('/dashboard')->with('success', 'Logged out successfully');
     }

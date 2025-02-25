@@ -36,7 +36,7 @@ const AddCategory = ({ categories }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-10 max-w-md w-full">
+            <div className="bg-white border border-gray-300 rounded-lg shadow-lg p-10 max-w-md w-full ">
                 {showFlash && (
                     <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-72">
                         <FlashMessage flash={{ success: 'Category added successfully!' }} />
@@ -62,7 +62,7 @@ const AddCategory = ({ categories }) => {
                     <div>
                         <button
                             type="submit"
-                            className="w-full py-2 px-4 text-white bg-blue-600 rounded-md shadow-md hover:bg-blue-700 focus:outline-none"
+                            className="w-full py-2 px-4 text-white bg-[#BA7D66] rounded-md shadow-md hover:bg-[#9a5d4c] focus:outline-none"
                         >
                             Submit
                         </button>

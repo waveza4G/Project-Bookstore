@@ -44,7 +44,6 @@ const AddGroup = ({ groups }) => {
                 )}
                 <h1 className="text-3xl font-extrabold text-gray-900 mb-6 text-center">Manage Groups</h1>
 
-                {/* ฟอร์มเพิ่มกลุ่ม */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-gray-700">Group Name</label>
@@ -62,7 +61,7 @@ const AddGroup = ({ groups }) => {
                     <div>
                         <button
                             type="submit"
-                            className="w-full py-2 px-4 text-white bg-blue-600 rounded-md shadow-md hover:bg-blue-700 focus:outline-none"
+                            className="w-full py-2 px-4 text-white bg-[#BA7D66] rounded-md shadow-md hover:bg-[#9a5d4c] focus:outline-none"
                         >
                             Submit
                         </button>

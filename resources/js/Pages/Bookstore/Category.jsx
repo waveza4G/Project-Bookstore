@@ -17,7 +17,7 @@ const Category = () => {
             className="flex flex-col items-center"
           >
             <div className="flex items-center justify-center p-8 bg-[#BA7D66] text-white rounded-full w-28 h-28">
-              <FaGraduationCap className="text-5xl text-white" />
+              <FaLaughBeam  className="text-5xl text-white" />
             </div>
             <span className="text-sm text-center mt-2">{categories[0].category_name}</span>
           </Link>
@@ -56,7 +56,7 @@ const Category = () => {
             className="flex flex-col items-center"
           >
             <div className="flex items-center justify-center p-8 bg-[#BA7D66] text-white rounded-full w-28 h-28">
-              <FaBookOpen className="text-5xl text-white" />
+              <FaGraduationCap className="text-5xl text-white" />
             </div>
             <span className="text-sm text-center mt-2">{categories[3].category_name}</span>
           </Link>
@@ -82,7 +82,7 @@ const Category = () => {
             className="flex flex-col items-center"
           >
             <div className="flex items-center justify-center p-8 bg-[#BA7D66] text-white rounded-full w-28 h-28">
-              <FaLaughBeam className="text-5xl text-white" />
+              <FaBookOpen className="text-5xl text-white" />
             </div>
             <span className="text-sm text-center mt-2">{categories[5].category_name}</span>
           </Link>

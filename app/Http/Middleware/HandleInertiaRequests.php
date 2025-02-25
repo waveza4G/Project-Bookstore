@@ -31,8 +31,6 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        // ดึง token จาก session
-        $token = $request->session()->get('token');
 
         return [
             ...parent::share($request),
@@ -40,10 +38,7 @@ class HandleInertiaRequests extends Middleware
                 'customer' => Auth::guard('customer')->user(), // ✅ ข้อมูลของ customer
                 'admin' => Auth::guard('admin')->user(), // ✅ ข้อมูลของ admin
             ],
-            'flash' => [
-                'success' => $request->session()->get('success') ?? null,
-                'error' => $request->session()->get('error') ?? null,
-            ],
+
             'categories' => DB::table('categories')->select('id', 'category_name')->get(),
             'groups' => DB::table('groups')->select('id', 'group_name')->get(),
             'rentals' => DB::table('rentals')

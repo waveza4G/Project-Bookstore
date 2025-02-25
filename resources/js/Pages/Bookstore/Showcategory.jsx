@@ -1,6 +1,7 @@
 import React from "react";
 import { usePage, Link } from "@inertiajs/react";
 import Sidebar from "./Sidebar"; // เรียกใช้ Sidebar
+import Navbar from "./Navbar";
 
 const Showcategory = () => {
   const { books = [], categoryName , groupName } = usePage().props; // รับข้อมูลจาก backend
@@ -18,7 +19,10 @@ const Showcategory = () => {
   };
 
   return (
+    <div className="bg-[#FFFBF4] min-h-screen h-full" >
+    <Navbar/>
     <div className="container p-6 flex">
+
       {/* Sidebar */}
       <Sidebar />
 
@@ -68,6 +72,7 @@ const Showcategory = () => {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 };

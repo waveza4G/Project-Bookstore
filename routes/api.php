@@ -16,7 +16,7 @@ Route::post('/admin/logout', [ApiController::class, 'logout'])->name('admin.logo
 
 Route::post('/register', [AuthController::class, 'addadmin']);  // แก้ไขให้ใช้ store แทน register
 
-Route::post('/admin/register', [ApiController::class, 'addadmin']);
+Route::post('/admin/register', [ApiController::class, 'AdminRegister']);
 
 // เส้นทางที่ต้องการการยืนยันตัวตน
 Route::get('/user', function (Request $request) {

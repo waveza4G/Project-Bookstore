@@ -4,13 +4,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react"; // ไอคอนล�
 
 const FoodAndHealth = () => {
   const { books = [] } = usePage().props;
-  console.log(books); // ตรวจสอบข้อมูลที่ได้รับจาก InertiaJS
-
   const scrollRef = useRef(null); // ใช้อ้างอิง div ที่เลื่อน
 
-  // กรองเฉพาะหนังสือที่มี category_name = "Comics & Manga"
+  // กรองเฉพาะหนังสือที่มี category_name = "Food & Health"
   const filteredBooks = books.filter(book => book.category_name === "Food & Health");
-  console.log(filteredBooks);  // ตรวจสอบว่า filteredBooks มีข้อมูลหรือไม่
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -26,7 +23,7 @@ const FoodAndHealth = () => {
 
   return (
     <div className="container mx-auto p-4 relative">
-      <h2 className="text-2xl font-bold mb-4">Food & Health</h2>
+      <h2 className="text-2xl font-bold mb-4">Food & Health แนะนำ</h2>
 
       {/* ปุ่มเลื่อนซ้าย */}
       <button
@@ -65,11 +62,10 @@ const FoodAndHealth = () => {
                   <div className="text-[#BA7D66] font-bold text-lg ">
                     ฿{parseFloat(book.price).toFixed(2)}
                   </div>
-
                 </div>
               ))
             ) : (
-              <p className="text-gray-500">ไม่มีข้อมูลหนังสือในหมวด Comics & Manga</p>
+              <p className="text-gray-500">ไม่มีข้อมูลหนังสือในหมวด Food & Health</p>
             )}
           </div>
         </div>
@@ -77,7 +73,7 @@ const FoodAndHealth = () => {
 
       {/* ปุ่มดูทั้งหมด */}
       <div className="absolute top-0 right-0 mr-4 mt-2">
-<Link
+        <Link
           href={route('Showcategory.index', { categoryName: 'Food & Health' })}
           className="inline-flex items-center text-[#BA7D66] hover:text-[#9e6e51] text-sm font-semibold"
         >

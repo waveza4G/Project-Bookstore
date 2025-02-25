@@ -4,6 +4,7 @@ import Swiper from "./Swiper";
 import Category from "./Category";
 
 import Books from "../Category/Books";
+import Books2 from "../Category/Books2";
 import ComicsandManga from "../Category/ComicsandManga";
 import Fiction from "../Category/Fiction";
 import Novel from "../Category/Novel";
@@ -13,21 +14,17 @@ import Literature from "../Category/Literature";
 
 const Dashboard = () => {
   return (
-    <div>
+    <div className="bg-[#FFFBF4] min-h-screen">
       <Navbar />
       <div className="container mx-auto px-4 mt-8">
         <Swiper />
-        {/* เพิ่ม margin-top ให้ div ครอบ Category */}
-        <div className="mt-10">  {/* เพิ่ม margin-top ที่ div นี้ */}
+        <div className="mt-10">
           <Category />
         </div>
         <Books />
-        <ComicsandManga />
-        <Fiction />
-        <Novel />
-        <Education />
-        <FoodAndHealth />
-        <Literature />
+        <Books2/>
+
+
       </div>
     </div>
   );
